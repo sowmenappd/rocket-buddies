@@ -248,8 +248,8 @@ Camera:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -289,8 +289,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: -0.37790313, y: -0.27219406, z: 0.11727479, w: -0.8771239}
+  m_LocalPosition: {x: 0.16576433, y: 5.86936, z: -2.2744045}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -309,7 +309,7 @@ GameObject:
   - component: {fileID: 1936460104}
   - component: {fileID: 1936460102}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: MapBuilder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -329,10 +329,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useRandomSeed: 1
   seedValue: 0
-  mapSizeX: 50
-  mapSizeZ: 50
+  mapSizeX: 20
+  mapSizeZ: 20
   mapMesh: {fileID: 0}
-  vertexPlacementDistance: 0.05
+  propagateForward: 0
+  vertexPlacementDistance: 1
   noiseScale: 0.339
 --- !u!4 &1936460103
 Transform:
@@ -366,7 +367,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 094ec3c03d9b8a4c284109d84b414f0a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
