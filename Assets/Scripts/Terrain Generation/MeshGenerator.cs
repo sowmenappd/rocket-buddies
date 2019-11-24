@@ -2,15 +2,16 @@
 
 public static class MeshGenerator
 {
-    public static Mesh CreateMesh(Transform target, int sizeX, int sizeZ, float noiseScale, float adjacentPointDistance, float randomSeed = -1){
+    public static Mesh CreateMesh(Transform target, int sizeX, int sizeZ, float meshMapHeight, float noiseScale, float adjacentPointDistance, float offset){
         MeshFilter meshFilter = target.GetComponent<MeshFilter>();
         MeshRenderer renderer = target.GetComponent<MeshRenderer>();
 
         Mesh mesh = new Mesh();
         mesh.name = "Auto-generated Mesh";
 
-        mesh.vertices = CreateVertices(target.position, sizeX, sizeZ, noiseScale, adjacentPointDistance, randomSeed == -1f ? 1f : randomSeed); 
+        mesh.vertices = CreateVertices(target.position, sizeX, sizeZ, meshMapHeight, noiseScale, adjacentPointDistance, offset); 
         mesh.triangles = CreateTriangles(mesh.vertices, sizeX, sizeZ);
+        mesh.RecalculateNormals();
         meshFilter.mesh = mesh;
 
         UnityEngine.MonoBehaviour.print("Mesh created.");
@@ -41,22 +42,22 @@ public static class MeshGenerator
         return triangles;
     }
 
-    private static Vector3[] CreateVertices(Vector3 startPoint, int sizeX, int sizeZ, float noiseScale, float distanceBetweenVerts, float randomSeed){
+    private static Vector3[] CreateVertices(Vector3 startPoint, int sizeX, int sizeZ, float meshMapHeight, float noiseScale, float distanceBetweenVerts, float offset){
         Vector3[] vertices = new Vector3[(sizeX + 1) * (sizeZ + 1)];
 
         for(int vertIndex = 0,z = 0; z < sizeZ + 1; z++){
             for(int x = 0; x < sizeX + 1; x++){
                 float xPos = startPoint.x + (x * distanceBetweenVerts);
                 float zPos = startPoint.z + (z * distanceBetweenVerts);
-                vertices[vertIndex++] = new Vector3(xPos, GetVertexHeight(xPos, zPos, noiseScale, randomSeed), zPos);
+                vertices[vertIndex++] = new Vector3(xPos, GetVertexHeight(x/noiseScale + offset, z/noiseScale + offset) * meshMapHeight, zPos);
             }
         }
 
         return vertices;
     }
 
-    private static float GetVertexHeight(float x, float z, float scale, float offset){
-        float yVal = Mathf.PerlinNoise((x + offset) * scale, (z + offset) * scale);
+    private static float GetVertexHeight(float x, float z){
+        float yVal = 2 * Mathf.PerlinNoise(x, z) - 1;
         return yVal;
     }
 
