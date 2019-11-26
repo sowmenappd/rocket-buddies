@@ -12,12 +12,21 @@ public class MapBuilder : MonoBehaviour
     public int mapSizeX, mapSizeZ;
     public float meshMapHeight;
 
+    public Vector2 mapOffset;
+
+    [Space][Header("Noise parameters")] public int noiseWaveCount;
+    public float freqeuncyInfluence; //lacunarity
+    public float amplitudeDiminishFactor; //persistance
+
+    [Space][Header("Mesh region data")]
+    public List<MeshData> regions;
+
     Mesh mapMesh;
 
     // int counter = 0;
     // public bool propagateForward = false;
 
-    [Range(.05f, 10f)] public float vertexPlacementDistance;
+    [Space][Range(.05f, 10f)] public float vertexPlacementDistance;
     [Range(.05f, 20f)] public float noiseScale;
     
     public bool autoUpdate;
@@ -40,7 +49,7 @@ public class MapBuilder : MonoBehaviour
         if(useRandomSeed){
             seed = seedValue = UnityEngine.Random.Range(-100000f, 100000f);
         }   
-        mapMesh = MeshGenerator.CreateMesh(transform, mapSizeX, mapSizeZ, meshMapHeight, noiseScale, vertexPlacementDistance, seed); 
+        mapMesh = MeshGenerator.CreateMesh(transform, mapSizeX, mapSizeZ, meshMapHeight, noiseScale, vertexPlacementDistance, seed, mapOffset, noiseWaveCount, freqeuncyInfluence, amplitudeDiminishFactor); 
     }
 
 }

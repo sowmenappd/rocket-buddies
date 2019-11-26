@@ -2,14 +2,14 @@
 
 public static class MeshGenerator
 {
-    public static Mesh CreateMesh(Transform target, int sizeX, int sizeZ, float meshMapHeight, float noiseScale, float adjacentPointDistance, float offset){
+    public static Mesh CreateMesh(Transform target, int sizeX, int sizeZ, float meshMapHeight, float noiseScale, float adjacentPointDistance, float seed, Vector2 offset, int numWaves, float frequencyInfluence, float baseDiminishValue){
         MeshFilter meshFilter = target.GetComponent<MeshFilter>();
         MeshRenderer renderer = target.GetComponent<MeshRenderer>();
 
         Mesh mesh = new Mesh();
         mesh.name = "Auto-generated Mesh";
 
-        mesh.vertices = CreateVertices(target.position, sizeX, sizeZ, meshMapHeight, noiseScale, adjacentPointDistance, offset); 
+        mesh.vertices = CreateVertices(target.position, sizeX, sizeZ, meshMapHeight, noiseScale, adjacentPointDistance, seed, offset, numWaves, frequencyInfluence, baseDiminishValue); 
         mesh.triangles = CreateTriangles(mesh.vertices, sizeX, sizeZ);
         mesh.RecalculateNormals();
         meshFilter.mesh = mesh;
@@ -42,14 +42,32 @@ public static class MeshGenerator
         return triangles;
     }
 
-    private static Vector3[] CreateVertices(Vector3 startPoint, int sizeX, int sizeZ, float meshMapHeight, float noiseScale, float distanceBetweenVerts, float offset){
+    private static Vector3[] CreateVertices(Vector3 startPoint, int sizeX, int sizeZ, float meshMapHeight, float noiseScale, float distanceBetweenVerts, float seed, Vector2 offset, int numWaves, float frequencyInfluence, float baseDiminishFactor){
         Vector3[] vertices = new Vector3[(sizeX + 1) * (sizeZ + 1)];
+        
+        float halfSizeX = sizeX * distanceBetweenVerts/ 2;
+        float halfSizeZ = sizeZ * distanceBetweenVerts/ 2;
 
         for(int vertIndex = 0,z = 0; z < sizeZ + 1; z++){
             for(int x = 0; x < sizeX + 1; x++){
-                float xPos = startPoint.x + (x * distanceBetweenVerts);
-                float zPos = startPoint.z + (z * distanceBetweenVerts);
-                vertices[vertIndex++] = new Vector3(xPos, GetVertexHeight(x/noiseScale + offset, z/noiseScale + offset) * meshMapHeight, zPos);
+                float samplePosX = startPoint.x + (x * distanceBetweenVerts);
+                float samplePosZ = startPoint.z + (z * distanceBetweenVerts);
+
+                float amplitude = 1;
+                float frequency = 1;
+                float noiseHeight = 0;
+
+                for(int i=0; i<numWaves; i++){
+                    float basePerlineHeight = GetVertexHeight((halfSizeX - samplePosX) * frequency / noiseScale + seed + offset.x, (halfSizeZ - samplePosZ) * frequency / noiseScale + seed + offset.y);
+                    float perlineValue = basePerlineHeight * meshMapHeight * amplitude;
+                    
+                    noiseHeight += (perlineValue * 2 - 1);
+
+                    frequency *= frequencyInfluence;
+                    amplitude *= baseDiminishFactor;
+                }
+
+                vertices[vertIndex++] = new Vector3(samplePosX, noiseHeight, samplePosZ);
             }
         }
 
@@ -57,6 +75,7 @@ public static class MeshGenerator
     }
 
     private static float GetVertexHeight(float x, float z){
+
         float yVal = 2 * Mathf.PerlinNoise(x, z) - 1;
         return yVal;
     }
