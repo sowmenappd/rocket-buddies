@@ -1,16 +1,22 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
-public class MapBuilder : MonoBehaviour
-{   
+public class MapBuilder : MonoBehaviour{
+
+    public static MapBuilder Instance{
+        get; set;
+    }  
+
     public bool useRandomSeed;
+    public bool blurEdges;
+    public bool useFlatShading;
+
     public float seedValue;
-    public int mapSizeX, mapSizeZ;
+    public int mapSize;
     public float meshMapHeight;
+    public AnimationCurve meshMapHeightInfluence;
 
     public Vector2 mapOffset;
 
@@ -19,12 +25,9 @@ public class MapBuilder : MonoBehaviour
     public float amplitudeDiminishFactor; //persistance
 
     [Space][Header("Mesh region data")]
-    public List<MeshData> regions;
+    public List<RegionType> regions;
 
     Mesh mapMesh;
-
-    // int counter = 0;
-    // public bool propagateForward = false;
 
     [Space][Range(.05f, 10f)] public float vertexPlacementDistance;
     [Range(.05f, 20f)] public float noiseScale;
@@ -49,7 +52,7 @@ public class MapBuilder : MonoBehaviour
         if(useRandomSeed){
             seed = seedValue = UnityEngine.Random.Range(-100000f, 100000f);
         }   
-        mapMesh = MeshGenerator.CreateMesh(transform, mapSizeX, mapSizeZ, meshMapHeight, noiseScale, vertexPlacementDistance, seed, mapOffset, noiseWaveCount, freqeuncyInfluence, amplitudeDiminishFactor); 
+        mapMesh = MeshGenerator.CreateMesh(transform, mapSize, mapSize, meshMapHeight, meshMapHeightInfluence, noiseScale, vertexPlacementDistance, seed, mapOffset, noiseWaveCount, freqeuncyInfluence, amplitudeDiminishFactor, regions, useFlatShading); 
     }
 
 }
