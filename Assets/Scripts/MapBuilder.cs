@@ -47,12 +47,26 @@ public class MapBuilder : MonoBehaviour{
     //     return vertices;
     // }
 
+    void Awake(){
+        Instance = this;
+    }
+
     public void GenerateMesh(){
         var seed = seedValue;
         if(useRandomSeed){
             seed = seedValue = UnityEngine.Random.Range(-100000f, 100000f);
         }   
         mapMesh = MeshGenerator.CreateMesh(transform, mapSize, mapSize, meshMapHeight, meshMapHeightInfluence, noiseScale, vertexPlacementDistance, seed, mapOffset, noiseWaveCount, freqeuncyInfluence, amplitudeDiminishFactor, regions, useFlatShading); 
+    }
+
+    public string GetAllRegionData(){
+        string data = "";
+        foreach(RegionType r in regions){
+            data += r.regionName + "\n";
+            data += r.maxHeightPercentage + "\n";
+            data += r.regionColor.r + " " + r.regionColor.g + " " + r.regionColor.b +"\n";
+        }
+        return data;
     }
 
 }
