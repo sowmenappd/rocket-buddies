@@ -8,6 +8,10 @@ public static class MeshGenerator
     static Vector2[] flatShadedUVs;
     static int[] flatShadedTriangles;
 
+    private static float[,] noiseMap;
+
+    public static System.Action<float[,]> OnHeightMapGenerated;
+
     public static Mesh CreateMesh(Transform target, int sizeX, int sizeZ, float meshMapHeight, AnimationCurve heightCurve, float noiseScale, float adjacentPointDistance, float seed, Vector2 offset, int numWaves, float frequencyInfluence, float baseDiminishValue, List<RegionType> regions, bool useFlatShading){
         MeshFilter meshFilter = target.GetComponent<MeshFilter>();
         MeshRenderer renderer = target.GetComponent<MeshRenderer>();
@@ -145,8 +149,13 @@ public static class MeshGenerator
                 vertices[vertIndex++] = new Vector3(samplePosX, noiseHeight, samplePosZ);
             }
         }
-
+        MeshGenerator.noiseMap = noiseMap;
+        OnHeightMapGenerated?.Invoke(noiseMap);
         return vertices;
+    }
+
+    public static float[,] RequestHeightMap(){
+        return MeshGenerator.noiseMap;
     }
 
     private static float GetVertexHeight(float x, float z){

@@ -15,8 +15,8 @@ public class Maptesting : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        builder.GenerateMesh();
-        builder.mapOffset += Vector2.left * Time.deltaTime * 2f;
+        //builder.GenerateMesh();
+        //builder.mapOffset += Vector2.left * Time.deltaTime * 2f;
         //transform.Rotate(0, Time.deltaTime * 10, 0);
     }
 }
