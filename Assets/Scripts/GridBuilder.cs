@@ -10,40 +10,68 @@ public class GridBuilder : MonoBehaviour
     public float displayNodeSize = 0.1f;
 
     private static GridBuilder instance;
-    public static GridBuilder Instance{
+    public static GridBuilder I{
         get {
             if(instance == null) instance = FindObjectOfType<GridBuilder>();
             return instance;
         }
-        private set{
+        set{
             instance = value;
         }
     }
 
     public Grid grid;
-    public float gridBaseHeight = 0;
+    public Vector3 gridBaseOffset;
     
     
     void Start(){
-        MeshGenerator.OnHeightMapGenerated += Instance.SetNodeHeight;
-        Instance.GenerateGrid(sizeX, sizeY, nodeDiameter);
+        MeshGenerator.OnHeightMapGenerated += I.SetNodeHeightAndWalkability;
+        I.GenerateGrid(sizeX, sizeY, nodeDiameter);
     }
 
     public void GenerateGrid(int sizeX, int sizeY, float nodeDiameter){
         grid = new Grid(sizeX, sizeY, nodeDiameter);
+        SetNodeHeightAndWalkability(MeshGenerator.RequestHeightMap(), MeshGenerator.RequestMaxHeight());
     }
 
-    public void SetNodeHeight(float[,] noiseMap){
+    public void SetNodeHeightAndWalkability(float[,] noiseMap, float maxHeight){
         MonoBehaviour.print("Received noise map of length " + noiseMap.GetLength(0));
+        for(int i=0; i<grid.nodes.GetLength(0); i++){
+            for(int j=0; j<grid.nodes.GetLength(1); j++){
+                grid.nodes[i,j].worldPos.y += noiseMap[i+1,j+1];
+            }
+        }
+
+        var maxRegionHeights = new float[MapBuilder.I.regions.Count];
+        var regionWalkableStatus = new bool[MapBuilder.I.regions.Count];
+        
+        int x = 0;
+        foreach(RegionType region in MapBuilder.I.regions){
+            maxRegionHeights[x] = maxHeight * region.maxHeightPercentage;
+            regionWalkableStatus[x] = region.walkable;
+            x++;
+        }
+
+        foreach(Node node in grid.nodes){
+            float nodeHeight = node.worldPos.y;
+            for(x=0; x<maxRegionHeights.Length; x++){
+                if(nodeHeight <= maxRegionHeights[x]){
+                    node.walkable = regionWalkableStatus[x];
+                    break;
+                }
+            }
+        }
+
     }
 
     void OnDrawGizmos(){
-        if(Instance == null || grid == null) return;
+        if(I == null || grid == null) return;
         if(grid.nodes == null) return;
 
         nodeDiameter = nodeDiameter >= 0.05 ? nodeDiameter : 0.05f;
         foreach(Node n in grid.nodes){
-            Gizmos.DrawSphere(n.worldPos + Vector3.up * gridBaseHeight, displayNodeSize);
+            Gizmos.color = n.walkable ? Color.green : Color.red;
+            Gizmos.DrawSphere(n.worldPos, displayNodeSize);
         }
     }
     
@@ -73,7 +101,7 @@ public class Grid {
 
         for(int i=0; i < nodesOnYaxis; i++){
             for(int j=0; j < nodesOnXaxis; j++){
-                Vector3 spawnPos = new Vector3(center.x - (sizeX / 2) + (j * nodeDiameter), 0, center.y - (sizeY / 2) + (i * nodeDiameter));
+                Vector3 spawnPos = new Vector3(center.x - (sizeX / 2) + (j * nodeDiameter), 0, center.y - (sizeY / 2) + (i * nodeDiameter)) + GridBuilder.I.gridBaseOffset;
                 nodes[i, j] = new Node(spawnPos);
             }
         }
@@ -85,15 +113,9 @@ public class Node {
     public Vector3 worldPos;
     public Node parent = null;
     public bool walkable;
-    public Node(Vector3 pos, Node parent = null, bool walkable = true){
+    public Node(Vector3 pos, Node parent = null, bool walkable = false){
         worldPos = pos;
         this.parent = parent; 
         this.walkable = walkable;
-    }
-
-    public void SetWalkability(float checkRadius, LayerMask mask){
-        if(Physics.CheckSphere(worldPos, GridBuilder.Instance.nodeDiameter/2, mask)){
-
-        }
     }
 }

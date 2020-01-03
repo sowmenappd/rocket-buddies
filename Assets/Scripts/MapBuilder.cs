@@ -5,9 +5,14 @@ using UnityEngine;
 [RequireComponent(typeof(MeshRenderer))]
 public class MapBuilder : MonoBehaviour{
 
-    public static MapBuilder Instance{
-        get; set;
-    }  
+    private static MapBuilder instance;
+    public static MapBuilder I{
+        get {
+            if(!instance)
+                instance = FindObjectOfType<MapBuilder>();
+            return instance;
+        }
+    }
 
     public bool useRandomSeed;
     public bool blurEdges;
@@ -46,10 +51,6 @@ public class MapBuilder : MonoBehaviour{
     //     }
     //     return vertices;
     // }
-
-    void Awake(){
-        Instance = this;
-    }
 
     public void GenerateMesh(){
         var seed = seedValue;

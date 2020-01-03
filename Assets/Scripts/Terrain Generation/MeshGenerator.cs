@@ -9,8 +9,9 @@ public static class MeshGenerator
     static int[] flatShadedTriangles;
 
     private static float[,] noiseMap;
+    private static float maxHeight;
 
-    public static System.Action<float[,]> OnHeightMapGenerated;
+    public static System.Action<float[,], float> OnHeightMapGenerated;
 
     public static Mesh CreateMesh(Transform target, int sizeX, int sizeZ, float meshMapHeight, AnimationCurve heightCurve, float noiseScale, float adjacentPointDistance, float seed, Vector2 offset, int numWaves, float frequencyInfluence, float baseDiminishValue, List<RegionType> regions, bool useFlatShading){
         MeshFilter meshFilter = target.GetComponent<MeshFilter>();
@@ -24,7 +25,7 @@ public static class MeshGenerator
         mesh.triangles = CreateTriangles(mesh.vertices, sizeX, sizeZ);
         
         var regionColors = GetRegionColorsFromNoisemap(sizeX, sizeZ, regions, noiseMap);
-        renderer.sharedMaterial.mainTexture = CreateNoiseTexture(sizeX, sizeZ, regionColors, MapBuilder.Instance.blurEdges);
+        renderer.sharedMaterial.mainTexture = CreateNoiseTexture(sizeX, sizeZ, regionColors, MapBuilder.I.blurEdges);
 
         mesh.uv = CreateUVs(sizeX, sizeZ);
 
@@ -44,14 +45,13 @@ public static class MeshGenerator
     private static Color[] GetRegionColorsFromNoisemap(int sizeX, int sizeZ, List<RegionType> regions, float[,] noiseMap){
         if(regions.Count == 0 || regions == null) throw new System.Exception("Regions list must contain at least one element.");
         Color[] colors = new Color[sizeX * sizeZ];
+        //use this if you want automatic region sorting based on height
         //regions.Sort();
         
-        float maxHeight = float.MinValue;
+        maxHeight = float.MinValue;
         for(int x = 0; x <= sizeX; x++){
             for(int z = 0; z <= sizeZ; z++){
-                if(noiseMap[z,x] > maxHeight){
-                    maxHeight = noiseMap[z,x];
-                }
+                maxHeight = Mathf.Max(maxHeight, noiseMap[z,x]);
             }
         }
 
@@ -150,12 +150,16 @@ public static class MeshGenerator
             }
         }
         MeshGenerator.noiseMap = noiseMap;
-        OnHeightMapGenerated?.Invoke(noiseMap);
+        OnHeightMapGenerated?.Invoke(noiseMap, maxHeight);
         return vertices;
     }
 
     public static float[,] RequestHeightMap(){
         return MeshGenerator.noiseMap;
+    }
+
+    public static float RequestMaxHeight(){
+        return MeshGenerator.maxHeight;
     }
 
     private static float GetVertexHeight(float x, float z){

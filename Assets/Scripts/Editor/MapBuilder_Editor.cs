@@ -10,8 +10,7 @@ public class MapBuilder_Editor : Editor
 
     bool showButton;
     public override void OnInspectorGUI(){
-        MapBuilder builder = target as MapBuilder;
-        MapBuilder.Instance = builder;
+        MapBuilder builder = MapBuilder.I;
         
         if(DrawDefaultInspector()){
             if(builder.autoUpdate){
