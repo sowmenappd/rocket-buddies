@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class MapObjectSpawner : MonoBehaviour
@@ -16,7 +15,7 @@ public class MapObjectSpawner : MonoBehaviour
 
     public Grid nodeGrid;
 
-    public List<Tree> treeTypesToSpawn;
+    public MapItemGroup[] itemGroups = new MapItemGroup[1];
 
     [HideInInspector]
     public List<GameObject> spawned;
@@ -25,7 +24,24 @@ public class MapObjectSpawner : MonoBehaviour
         if(nodeGrid == null){
             nodeGrid = GridBuilder.I.grid;
         }
-        //destroy existing spawned
+
+        DeleteExistingItems();
+
+        for(var i = 0; i < itemGroups.Length; i++){
+            foreach(var item in itemGroups[i].items){
+                int randomIndexX = Random.Range(1, nodeGrid.nodes.GetLength(1)-2);
+                int randomIndexY = Random.Range(1, nodeGrid.nodes.GetLength(0)-2);
+                Node node = nodeGrid.nodes[randomIndexY, randomIndexX];
+                spawned.Add(Instantiate(item, Vector3.up * item.groundAdjustmentHeight + node.worldPos, item.spawnableObject.transform.rotation).gameObject);
+            }
+        }
+        
+
+        //get nodes to spawn items on (non-colliding)
+        //spawn walkable items
+    }
+
+    private void DeleteExistingItems(){
         if(spawned != null){
             foreach(var t in spawned)
             #if UNITY_EDITOR
@@ -35,13 +51,16 @@ public class MapObjectSpawner : MonoBehaviour
             #endif
         }
         spawned.Clear();
+    }
+}
 
-        foreach(Tree t in treeTypesToSpawn){
-            //if(t != null)
-            spawned.Add(Instantiate(t, new Vector3(Random.Range(-15f, 15f), 10f, Random.Range(-15f, 15f)), t.spawnableObject.transform.rotation).gameObject);
-        }
+[System.Serializable]
+public struct MapItemGroup{
+    public string tag;
+    public List<SpawnableObject> items;
 
-        //get nodes to spawn items on (non-colliding)
-        //spawn walkable items
+    public MapItemGroup(string tag, List<SpawnableObject> items){
+        this.tag = tag;
+        this.items = items;
     }
 }

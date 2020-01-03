@@ -27,8 +27,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6296135557158621840}
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071067}
-  m_LocalPosition: {x: 8.717308, y: 0.5715316, z: 28.703705}
-  m_LocalScale: {x: 54.01943, y: 54.01943, z: 54.01943}
+  m_LocalPosition: {x: 8.372, y: 0, z: 28.69}
+  m_LocalScale: {x: 35.062393, y: 35.062393, z: 35.062393}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -93,6 +93,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnableObject: {fileID: 6296135557158621840}
-  centerOffset: {x: -0.74, y: 1.16, z: 0.06}
-  radius: 1.74
-  groundAdjustmentHeight: 0.65
+  centerOffset: {x: -0.39, y: 0.05, z: 0.06}
+  radius: 0.49
+  groundAdjustmentHeight: 0.42

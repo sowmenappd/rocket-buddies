@@ -25,7 +25,7 @@ public class GridBuilder : MonoBehaviour
     
     
     void Start(){
-        MeshGenerator.OnHeightMapGenerated += I.SetNodeHeightAndWalkability;
+        MeshGenerator.OnHeightMapGenerated += SetNodeHeightAndWalkability;
         I.GenerateGrid(sizeX, sizeY, nodeDiameter);
     }
 
@@ -38,6 +38,8 @@ public class GridBuilder : MonoBehaviour
         MonoBehaviour.print("Received noise map of length " + noiseMap.GetLength(0));
         for(int i=0; i<grid.nodes.GetLength(0); i++){
             for(int j=0; j<grid.nodes.GetLength(1); j++){
+                //Noise Map vertices = (rows + 1) * (columns + 1)
+                //skipping the 0th row and col in noisemap
                 grid.nodes[i,j].worldPos.y += noiseMap[i+1,j+1];
             }
         }
