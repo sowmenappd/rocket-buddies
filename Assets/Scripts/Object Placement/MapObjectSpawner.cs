@@ -64,3 +64,14 @@ public struct MapItemGroup{
         this.items = items;
     }
 }
+
+[System.Serializable]
+public struct MapItemGroupDistribution{
+    public string targetTag;
+    public Vector2 itemCountRange;
+
+    public MapItemGroupDistribution(string tag, Vector2 countRange){
+        targetTag = tag;
+        itemCountRange = countRange;
+    } 
+}
