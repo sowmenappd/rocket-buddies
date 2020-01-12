@@ -38,6 +38,7 @@ public class MapBuilder : MonoBehaviour{
     [Range(.05f, 20f)] public float noiseScale;
     
     public bool autoUpdate;
+    public bool generateCollider;
 
     //TESTING
     // Vector3[] PropagateValuesForward(Vector3[] vertices)
@@ -58,6 +59,12 @@ public class MapBuilder : MonoBehaviour{
             seed = seedValue = UnityEngine.Random.Range(-100000f, 100000f);
         }   
         mapMesh = MeshGenerator.CreateMesh(transform, mapSize, mapSize, meshMapHeight, meshMapHeightInfluence, noiseScale, vertexPlacementDistance, seed, mapOffset, noiseWaveCount, freqeuncyInfluence, amplitudeDiminishFactor, regions, useFlatShading); 
+        if(generateCollider){
+            var col = GetComponent<MeshCollider>();
+            if(col){
+                col.sharedMesh = mapMesh;
+            }
+        }
     }
 
     public string GetAllRegionData(){

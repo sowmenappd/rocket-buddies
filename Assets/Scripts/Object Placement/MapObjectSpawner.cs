@@ -27,12 +27,27 @@ public class MapObjectSpawner : MonoBehaviour
 
         DeleteExistingItems();
 
+        HashSet<Node> crossedNodes = new HashSet<Node>();
+
         for(var i = 0; i < itemGroups.Length; i++){
+            int numItemsPerGroup = Random.Range(itemGroups[i].itemCountRange.x, itemGroups[i].itemCountRange.y);
+            int currentCount = 0;
             foreach(var item in itemGroups[i].items){
-                int randomIndexX = Random.Range(1, nodeGrid.nodes.GetLength(1)-2);
-                int randomIndexY = Random.Range(1, nodeGrid.nodes.GetLength(0)-2);
-                Node node = nodeGrid.nodes[randomIndexY, randomIndexX];
-                spawned.Add(Instantiate(item, Vector3.up * item.groundAdjustmentHeight + node.worldPos, item.spawnableObject.transform.rotation).gameObject);
+                if(currentCount >= numItemsPerGroup) break;
+                Node node = null;
+                int itemCount = Random.Range(0, (numItemsPerGroup - currentCount));   
+                currentCount += itemCount;
+                for(int x = 0; x < itemCount; x++){
+                    do{
+                        int randomIndexX = Random.Range(1, nodeGrid.nodes.GetLength(1)-2);
+                        int randomIndexY = Random.Range(1, nodeGrid.nodes.GetLength(0)-2);
+                        node = nodeGrid.nodes[randomIndexY, randomIndexX];
+                    } while(crossedNodes.Contains(node));
+                    crossedNodes.Add(node);
+                    var obj = item.Spawn(Vector3.up * item.groundAdjustmentHeight + node.worldPos).GetGameObject();
+                    spawned.Add(obj);
+                    //spawned.Add(Instantiate(item, Vector3.up * item.groundAdjustmentHeight + node.worldPos, item.spawnableObject.transform.rotation).gameObject);
+                } 
             }
         }
         
@@ -58,20 +73,5 @@ public class MapObjectSpawner : MonoBehaviour
 public struct MapItemGroup{
     public string tag;
     public List<SpawnableObject> items;
-
-    public MapItemGroup(string tag, List<SpawnableObject> items){
-        this.tag = tag;
-        this.items = items;
-    }
-}
-
-[System.Serializable]
-public struct MapItemGroupDistribution{
-    public string targetTag;
-    public Vector2 itemCountRange;
-
-    public MapItemGroupDistribution(string tag, Vector2 countRange){
-        targetTag = tag;
-        itemCountRange = countRange;
-    } 
+    public Vector2Int itemCountRange;
 }

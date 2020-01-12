@@ -21,25 +21,28 @@ public class SpawnableObject : MonoBehaviour, ISpawnable
 
     public virtual ISpawnable Spawn(Vector3 spawnPos)
     {
+        if(!spawnableObject) return null;
         print("Spawned " + spawnableObject + " as " + name);
         GameObject obj = null;
         if(spawnableObject){
-            obj = Instantiate(spawnableObject, spawnPos, spawnableObject.transform.rotation);
+            obj = Instantiate(spawnableObject, spawnPos, transform.rotation);
         }
         spawnable = obj.transform.GetComponent<ISpawnable>();
         return spawnable;
     }
 
-    public Vector3 GetGroundContactPointLocal(){
-        return new Vector3(centerOffset.x, -groundAdjustmentHeight, centerOffset.z);
-    }
 
     void OnDrawGizmos(){
         Gizmos.DrawWireSphere(transform.position + centerOffset, radius);
-        Gizmos.DrawIcon(transform.position + GetGroundContactPointLocal(), "curvekeyframe", true);
+        Gizmos.DrawIcon(transform.position + Vector3.up * groundAdjustmentHeight, "curvekeyframe", true);
     }
 
     public void Destroy(){
         Destroy(gameObject);
+    }
+
+    public GameObject GetGameObject()
+    {
+        return gameObject;
     }
 }
