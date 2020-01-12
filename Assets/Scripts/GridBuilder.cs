@@ -95,7 +95,7 @@ public class Grid {
         GenerateNodes(Vector3.zero);
     }
 
-    private void GenerateNodes(Vector3 center){
+    public void GenerateNodes(Vector3 center){
         int nodesOnXaxis = Mathf.RoundToInt(sizeX / nodeDiameter);
         int nodesOnYaxis = Mathf.RoundToInt(sizeY / nodeDiameter);
         nodes = new Node[nodesOnYaxis, nodesOnXaxis];
@@ -104,7 +104,7 @@ public class Grid {
         for(int i=0; i < nodesOnYaxis; i++){
             for(int j=0; j < nodesOnXaxis; j++){
                 Vector3 spawnPos = new Vector3(center.x - (sizeX / 2) + (j * nodeDiameter), 0, center.y - (sizeY / 2) + (i * nodeDiameter)) + GridBuilder.I.gridBaseOffset;
-                nodes[i, j] = new Node(spawnPos);
+                nodes[i, j] = new Node(spawnPos, null, true);
             }
         }
     }
@@ -114,8 +114,8 @@ public class Grid {
 public class Node {
     public Vector3 worldPos;
     public Node parent = null;
-    public bool walkable;
-    public Node(Vector3 pos, Node parent = null, bool walkable = false){
+    public bool walkable = false;
+    public Node(Vector3 pos, Node parent = null, bool walkable = true){
         worldPos = pos;
         this.parent = parent; 
         this.walkable = walkable;
