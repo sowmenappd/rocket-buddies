@@ -16,7 +16,7 @@ public class SpawnableObject : MonoBehaviour, ISpawnable
     {
         //if(!spawnableObject) return new GameObject("NULL").AddComponent<ISpawnable>();
         GameObject obj = null;
-        if(spawnableObject){
+        if(spawnableObject != null){
             obj = Instantiate(spawnableObject, spawnPos, transform.rotation);
             spawnable = obj.transform.GetComponent<ISpawnable>();
         }
