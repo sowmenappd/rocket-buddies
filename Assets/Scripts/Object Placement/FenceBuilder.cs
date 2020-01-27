@@ -69,7 +69,7 @@ public class FenceBuilder : MonoBehaviour
         return hit.normal;
     }
 
-    void OnDrawGizmos(){
+    void OnDrawGizmosSelected(){
         if(fenceBounds != null){
             Gizmos.DrawWireCube(new Vector3(fenceBounds.x, 0, fenceBounds.y), new Vector3(fenceBounds.size.x, 1f, fenceBounds.size.y));
             Gizmos.DrawWireSphere(fenceBounds.position, 2f);
