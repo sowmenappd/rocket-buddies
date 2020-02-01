@@ -18,10 +18,12 @@ public class Weapon : MonoBehaviour{
     protected float waitDurationPerShot = 0;    
     protected float shotTimer = 0;
 
+    public Vector3 equippedPosition;
+    public Vector3 equippedRotation;
+
     public void Init(){
-        transform.localPosition = new Vector3(0.48f, -0.41f, 0.3990f);
-        transform.localEulerAngles = new Vector3(-9.49f, -0.295f, 4.169f);
-        transform.localScale = new Vector3(0.44029f, 0.44029f, 0.880752f);
+        transform.localPosition = equippedPosition;
+        transform.localEulerAngles = equippedRotation;
     }
 
     public virtual void Start(){
@@ -39,5 +41,6 @@ public class Weapon : MonoBehaviour{
 
     public virtual void Equip(){
         gameObject.SetActive(true);
+        Init();
     }
 }

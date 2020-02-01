@@ -13,6 +13,8 @@ public class RocketLauncher : Weapon{
     public float recoilDuration;
     public float maxRecoilLocalDistance;
 
+    public bool testing;
+
     public override void Start(){
         base.Start();
         rocketSpawn = transform.GetChild(0);
@@ -23,11 +25,18 @@ public class RocketLauncher : Weapon{
             shotTimer -= Time.deltaTime;
         } else {
             canFire = true;
-        }        
+        }
+
+        if(testing){
+            transform.localPosition = equippedPosition;
+            transform.localEulerAngles = equippedRotation;     
+        }
+        
     }
 
     IEnumerator WeaponRecoil(){
         //if(!canFire) yield break;
+        Init();
         float duration = recoilDuration;
         float speed = 1 / duration;
 

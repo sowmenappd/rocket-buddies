@@ -41,12 +41,12 @@ public class PlayerController : LivingEntity
     }
     
     protected override void Start(){
-        instance = this;
         base.Start();
-        camera = transform.GetChild(0).GetComponent<Camera>();
+        instance = this;
+        camera = Camera.main;
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        holder = transform.GetChild(0).GetChild(0).GetComponent<WeaponHolder>();
+        holder = transform.GetChild(0).GetComponent<WeaponHolder>();
         activeWeapon = holder.weapons[holder.activeWeaponIndex];
         activeWeapon.Equip();
 
@@ -58,10 +58,14 @@ public class PlayerController : LivingEntity
         if(!alive) return;
 
         Movement();
-        CameraLook();
+        Rotation();
         Jump();
         Fire();
         SwitchWeapons();
+
+        if(Input.GetKeyDown(KeyCode.R)){
+            animator.SetTrigger("reload");
+        }
     }
 
     void Jump(){
@@ -91,7 +95,7 @@ public class PlayerController : LivingEntity
         base.TakeDamage(damage);
     }
 
-    void CameraLook(){
+    void Rotation(){
         if(Input.GetAxis("Mouse X") != 0){
             cameraRotationH += Input.GetAxis("Mouse X") > 0 ? camRotationSpeed : -camRotationSpeed;
         }
@@ -99,33 +103,34 @@ public class PlayerController : LivingEntity
             cameraRotationV += Input.GetAxis("Mouse Y") > 0 ? -camRotationSpeed : camRotationSpeed;
         }
         transform.eulerAngles = new Vector3(0, cameraRotationH, 0);
-        camera.transform.localEulerAngles = new Vector3(Mathf.Clamp(cameraRotationV, -45, 75), 0, 0);
+        //camera.transform.localEulerAngles = new Vector3(Mathf.Clamp(cameraRotationV, -45, 75), 0, 0);
     }
 
     void Movement(){
         dir = Vector3.zero;
         if(Input.GetKey(KeyCode.W)){
-            dir += Vector3.forward * Time.deltaTime * moveSpeed;
+            dir += Vector3.forward;
         } else if (Input.GetKey(KeyCode.S)){
-            dir -= Vector3.forward * Time.deltaTime * moveSpeed;
+            dir -= Vector3.forward;
         }
 
         if(Input.GetKey(KeyCode.A)){
-            dir -= Vector3.right * Time.deltaTime * moveSpeed;
+            dir -= Vector3.right;
         } else if (Input.GetKey(KeyCode.D)){
-            dir += Vector3.right * Time.deltaTime * moveSpeed;
+            dir += Vector3.right;
         }
 
-        transform.Translate(dir);
+
+        transform.Translate(dir.normalized * moveSpeed * Time.deltaTime);
         ProcessAnimation(dir);
     }
 
     void ProcessAnimation(Vector3 moveDir){
-        float moveX = moveDir.x > 0 ? 1 : moveDir.x < 0 ? 1 : 0;
-        float moveY = moveDir.y > 0 ? 1 : moveDir.y < 0 ? 1 : 0;
+        float moveX = moveDir.x > 0 ? 1 : moveDir.x < 0 ? -1 : 0;
+        float moveY = moveDir.z > 0 ? 1 : moveDir.z < 0 ? -1 : 0;
 
         Vector2 animDir = new Vector2(moveX, moveY);
-        animDir.Normalize();
+        //animDir.Normalize();
 
         animator.SetFloat("moveX", animDir.x); 
         animator.SetFloat("moveY", animDir.y);
