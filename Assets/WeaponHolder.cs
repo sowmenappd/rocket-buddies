@@ -33,11 +33,11 @@ public class WeaponHolder : MonoBehaviour
         float t = 0;
         var refPose = weapons[indexOld].transform.localPosition;
         float vy = weapons[indexOld].transform.localPosition.y;
-        float my = weapons[indexOld].transform.localPosition.y + 0.7f;
+        float my = weapons[indexOld].transform.localPosition.y - 0.7f;
         while(t < duration){
             t += Time.deltaTime;
             weapons[indexOld].transform.localPosition -= new Vector3(0, speed, 0);
-            weapons[indexOld].transform.localPosition = new Vector3(refPose.x, Mathf.Clamp(weapons[indexOld].transform.localPosition.y, vy, my), refPose.z);
+            weapons[indexOld].transform.localPosition = new Vector3(refPose.x, Mathf.Clamp(weapons[indexOld].transform.localPosition.y, my, vy), refPose.z);
             yield return new WaitForSeconds(Time.deltaTime);
         }
         weapons[indexOld].Unequip();
@@ -50,7 +50,7 @@ public class WeaponHolder : MonoBehaviour
         while(t < duration){
             t += Time.deltaTime;
             weapons[indexNew].transform.localPosition += new Vector3(0, speed, 0);
-            weapons[indexNew].transform.localPosition = new Vector3(refPose.x, Mathf.Clamp(weapons[indexNew].transform.localPosition.y, vy, my), refPose.z);
+            weapons[indexNew].transform.localPosition = new Vector3(refPose.x, Mathf.Clamp(weapons[indexNew].transform.localPosition.y, my, vy), refPose.z);
             yield return new WaitForSeconds(Time.deltaTime);
         }
         weapons[indexNew].transform.localPosition = refPose;

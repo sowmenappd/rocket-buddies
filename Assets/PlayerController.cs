@@ -19,6 +19,8 @@ public class PlayerController : LivingEntity
     Vector3 dir;
     float cameraRotationH, cameraRotationV;
 
+    Animator animator;
+
     public bool isGrounded;
 
     public WeaponHolder holder;
@@ -31,18 +33,28 @@ public class PlayerController : LivingEntity
         }
     }
     private static PlayerController instance;
+
+    public bool IsIdle{
+        get {
+            return animator.GetFloat("moveX") == 0 && animator.GetFloat("moveY") == 0;
+        }
+    }
     
     protected override void Start(){
         instance = this;
         base.Start();
         camera = transform.GetChild(0).GetComponent<Camera>();
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
         holder = transform.GetChild(0).GetChild(0).GetComponent<WeaponHolder>();
         activeWeapon = holder.weapons[holder.activeWeaponIndex];
         activeWeapon.Equip();
+
+        //Cursor.visible = false;
     }
 
     void Update(){
+        //if(Input.GetKeyDown(KeyCode.Escape)) Cursor.visible = !Cursor.visible;
         if(!alive) return;
 
         Movement();
@@ -105,6 +117,20 @@ public class PlayerController : LivingEntity
         }
 
         transform.Translate(dir);
+        ProcessAnimation(dir);
+    }
+
+    void ProcessAnimation(Vector3 moveDir){
+        float moveX = moveDir.x > 0 ? 1 : moveDir.x < 0 ? 1 : 0;
+        float moveY = moveDir.y > 0 ? 1 : moveDir.y < 0 ? 1 : 0;
+
+        Vector2 animDir = new Vector2(moveX, moveY);
+        animDir.Normalize();
+
+        animator.SetFloat("moveX", animDir.x); 
+        animator.SetFloat("moveY", animDir.y);
+
+        animator.SetBool("grounded", isGrounded); 
     }
 
     protected override void Die(){

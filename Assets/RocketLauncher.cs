@@ -9,6 +9,10 @@ public class RocketLauncher : Weapon{
 
     public float launchForce;
 
+    public Vector2 recoilForces;
+    public float recoilDuration;
+    public float maxRecoilLocalDistance;
+
     public override void Start(){
         base.Start();
         rocketSpawn = transform.GetChild(0);
@@ -20,6 +24,31 @@ public class RocketLauncher : Weapon{
         } else {
             canFire = true;
         }        
+    }
+
+    IEnumerator WeaponRecoil(){
+        //if(!canFire) yield break;
+        float duration = recoilDuration;
+        float speed = 1 / duration;
+
+        float t = 0;
+
+        var normalPos = transform.localPosition;
+        var targetPos = normalPos - Vector3.forward * maxRecoilLocalDistance;
+
+        while(t < duration / 2f){
+            t += Time.deltaTime;
+            transform.localPosition = Vector3.Lerp(transform.localPosition, targetPos, Time.deltaTime * speed);
+            yield return null;
+        }
+        //transform.localPosition = targetPos;
+
+        while(t < duration){
+            t += Time.deltaTime;
+            transform.localPosition = Vector3.Lerp(transform.localPosition, normalPos, Time.deltaTime * speed);
+            yield return null;
+        }
+        transform.localPosition = normalPos;
     }
 
     public override void Fire(){
@@ -34,5 +63,6 @@ public class RocketLauncher : Weapon{
         rocket.owner = transform.root;
         rocket.transform.forward = transform.forward;
         rocket.transform.GetComponent<Rigidbody>().AddForce(PlayerController.Instance.Velocity + rocket.transform.forward * launchForce, ForceMode.Impulse);
+        StartCoroutine(WeaponRecoil());
     }
 }
