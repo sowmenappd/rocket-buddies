@@ -13,11 +13,16 @@ public class RocketLauncher : Weapon{
     public float recoilDuration;
     public float maxRecoilLocalDistance;
 
+    LaunchArcRenderer rangeFinder;
+
     public bool testing;
+    public bool hasRangeFinder;
 
     public override void Start(){
         base.Start();
         rocketSpawn = transform.GetChild(0);
+        if(hasRangeFinder)
+            rangeFinder = rocketSpawn.GetChild(0).GetComponent<LaunchArcRenderer>();
     }
 
     void Update(){
@@ -31,7 +36,8 @@ public class RocketLauncher : Weapon{
             transform.localPosition = equippedPosition;
             transform.localEulerAngles = equippedRotation;     
         }
-        
+        if(hasRangeFinder)
+            rangeFinder.RenderArc();
     }
 
     IEnumerator WeaponRecoil(){

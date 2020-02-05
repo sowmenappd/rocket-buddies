@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : LivingEntity
 {
     public float moveSpeed; 
-    public float camRotationSpeed;
+    public float rotationSpeed;
     public float jumpForce;
 
     Camera camera;
@@ -97,10 +97,10 @@ public class PlayerController : LivingEntity
 
     void Rotation(){
         if(Input.GetAxis("Mouse X") != 0){
-            cameraRotationH += Input.GetAxis("Mouse X") > 0 ? camRotationSpeed : -camRotationSpeed;
+            cameraRotationH += Input.GetAxis("Mouse X") > 0 ? rotationSpeed : -rotationSpeed;
         }
         if(Input.GetAxis("Mouse Y") != 0){
-            cameraRotationV += Input.GetAxis("Mouse Y") > 0 ? -camRotationSpeed : camRotationSpeed;
+            cameraRotationV += Input.GetAxis("Mouse Y") > 0 ? -rotationSpeed : rotationSpeed;
         }
         transform.eulerAngles = new Vector3(0, cameraRotationH, 0);
         //camera.transform.localEulerAngles = new Vector3(Mathf.Clamp(cameraRotationV, -45, 75), 0, 0);

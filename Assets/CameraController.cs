@@ -21,7 +21,7 @@ public class CameraController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void LateUpdate()
+    void Update()
     {
         transform.LookAt(player.position + Vector3.up * lookUpOffset);
         var followPos = player.TransformPoint(followPoint);
