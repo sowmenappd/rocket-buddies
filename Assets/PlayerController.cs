@@ -50,11 +50,12 @@ public class PlayerController : LivingEntity
         activeWeapon = holder.weapons[holder.activeWeaponIndex];
         activeWeapon.Equip();
 
-        //Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update(){
-        //if(Input.GetKeyDown(KeyCode.Escape)) Cursor.visible = !Cursor.visible;
+        if(Input.GetKeyDown(KeyCode.Escape)) Cursor.visible = !Cursor.visible;
         if(!alive) return;
 
         Movement();
@@ -82,6 +83,7 @@ public class PlayerController : LivingEntity
             holder.CyclePreviousWeapon();
         }
         activeWeapon = holder.weapons[holder.activeWeaponIndex];
+        activeWeapon.Equip();
     }
 
     protected virtual void Fire(){

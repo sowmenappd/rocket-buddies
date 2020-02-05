@@ -15157,6 +15157,7 @@ MonoBehaviour:
   recoilForces: {x: 20, y: 15}
   recoilDuration: 0.3
   maxRecoilLocalDistance: 0.3
+  rangeFinderMoveSpeed: 0
   testing: 0
   hasRangeFinder: 0
 --- !u!65 &839543924
@@ -37846,6 +37847,7 @@ MonoBehaviour:
   recoilForces: {x: 0, y: 0}
   recoilDuration: 0
   maxRecoilLocalDistance: 0
+  rangeFinderMoveSpeed: 0
   testing: 0
   hasRangeFinder: 0
 --- !u!23 &2141741348
@@ -39521,6 +39523,7 @@ MonoBehaviour:
   recoilForces: {x: 0, y: 0}
   recoilDuration: 0
   maxRecoilLocalDistance: 0
+  rangeFinderMoveSpeed: 0
   testing: 0
   hasRangeFinder: 0
 --- !u!4 &4123271160826582798
@@ -41024,6 +41027,7 @@ MonoBehaviour:
   recoilForces: {x: 20, y: 15}
   recoilDuration: 0.3
   maxRecoilLocalDistance: 0.3
+  rangeFinderMoveSpeed: 5
   testing: 1
   hasRangeFinder: 1
 --- !u!1 &8524309047954516128

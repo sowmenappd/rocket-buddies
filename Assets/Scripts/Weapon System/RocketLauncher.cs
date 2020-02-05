@@ -14,15 +14,20 @@ public class RocketLauncher : Weapon{
     public float maxRecoilLocalDistance;
 
     LaunchArcRenderer rangeFinder;
+    public float rangeFinderMoveSpeed;
 
     public bool testing;
     public bool hasRangeFinder;
 
+    float rfRotation;
+
     public override void Start(){
         base.Start();
         rocketSpawn = transform.GetChild(0);
-        if(hasRangeFinder)
+        if(hasRangeFinder){
             rangeFinder = rocketSpawn.GetChild(0).GetComponent<LaunchArcRenderer>();
+            rfRotation = rangeFinder.transform.localEulerAngles.y;
+        }
     }
 
     void Update(){
@@ -36,9 +41,20 @@ public class RocketLauncher : Weapon{
             transform.localPosition = equippedPosition;
             transform.localEulerAngles = equippedRotation;     
         }
-        if(hasRangeFinder)
-            rangeFinder.RenderArc();
+        //if(hasRangeFinder)
+            //rangeFinder.RenderArc();
+
+        ProcessRangefinderVerticalMovement();
     }
+
+    void ProcessRangefinderVerticalMovement(){
+      float mov = -Input.GetAxis("Mouse Y");
+
+      float amount = mov * rangeFinderMoveSpeed;
+      rfRotation += amount;
+      rocketSpawn.localEulerAngles = new Vector3(rfRotation, rocketSpawn.localEulerAngles.y, rocketSpawn.localEulerAngles.z);
+    }
+
 
     IEnumerator WeaponRecoil(){
         //if(!canFire) yield break;
