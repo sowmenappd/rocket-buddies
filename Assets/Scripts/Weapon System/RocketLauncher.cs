@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections;
 using UnityEngine;
 
 public class RocketLauncher : Weapon {
@@ -30,6 +30,7 @@ public class RocketLauncher : Weapon {
       rangeFinder = rocketSpawn.GetChild (0).GetComponent<LaunchArcRenderer> ();
       rfRotation = rangeFinder.transform.localEulerAngles.y;
     }
+    //SetReloadAnimationCallback();
   }
 
   void Update () {
@@ -83,16 +84,48 @@ public class RocketLauncher : Weapon {
 
   public override void Fire () {
     if (!canFire || switching) return;
-    LaunchRocket ();
-    canFire = false;
-    shotTimer = waitDurationPerShot;
+    if(HasLoadedAmmo()){
+      LaunchRocket ();
+      canFire = false;
+      shotTimer = waitDurationPerShot;
+    } else {
+      StartWeaponReload();
+    }
   }
+
+  bool HasLoadedAmmo(){
+    return currentAmmo > 0;
+  }
+
+  void ReloadAmmo(){
+    print("in reload ammo function");
+    if(totalWeaponAmmoCapacity > 0){
+      int amountToLoad = Mathf.Min(totalWeaponAmmoCapacity - currentAmmo, magazineAmmoCap - currentAmmo);
+      currentAmmo += amountToLoad;
+      totalWeaponAmmoCapacity -= amountToLoad;
+    }
+  }
+
+  void StartWeaponReload(){
+    print("reloading in animator");
+    var controller = transform.root.GetComponent<Animator>();
+    controller.SetTrigger("reload");
+  }
+
+  
 
   public void LaunchRocket () {
     var rocket = Instantiate (rocketPrefab, rocketSpawn.position, Quaternion.Euler (transform.forward));
     rocket.owner = transform.root;
     rocket.transform.forward = transform.forward;
-    rocket.transform.GetComponent<Rigidbody> ().AddForce (PlayerController.Instance.Velocity + rocket.transform.forward * launchForce, ForceMode.Impulse);
+    rocket.transform.GetComponent<Rigidbody> ().AddForce (PlayerController.Instance.Velocity + rocketSpawn.forward * launchForce, ForceMode.Impulse);
+
+    currentAmmo--;
+    if(currentAmmo == 0){
+      var controller = transform.root.GetComponent<Animator>();
+      controller.SetTrigger("reload");
+    }
+
     StartCoroutine (WeaponRecoil ());
   }
 }

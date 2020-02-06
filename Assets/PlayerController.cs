@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +8,6 @@ public class PlayerController : LivingEntity {
   public float rotationSpeed;
   public float jumpForce;
 
-  Camera camera;
   Rigidbody rb;
   public Vector3 Velocity {
     get {
@@ -42,7 +42,6 @@ public class PlayerController : LivingEntity {
   protected override void Start () {
     base.Start ();
     instance = this;
-    camera = Camera.main;
     rb = GetComponent<Rigidbody> ();
     animator = GetComponent<Animator> ();
     holder = transform.GetChild (0).GetComponent<WeaponHolder> ();
@@ -51,6 +50,7 @@ public class PlayerController : LivingEntity {
 
     Cursor.lockState = CursorLockMode.Locked;
     Cursor.visible = false;
+    SetReloadAnimationCallback();
   }
 
   void Update () {
@@ -64,7 +64,7 @@ public class PlayerController : LivingEntity {
     SwitchWeapons ();
 
     if (Input.GetKeyDown (KeyCode.R)) {
-      animator.SetTrigger ("reload");
+      animator.SetTrigger("reload");
     }
   }
 
@@ -73,6 +73,17 @@ public class PlayerController : LivingEntity {
       isGrounded = false;
       rb.AddForce (Vector3.up * jumpForce, ForceMode.Impulse);
     }
+  }
+
+  void SetReloadAnimationCallback(){
+    //var controller = animator;
+    //var c = controller.runtimeAnimatorController.animationClips.First(clip => clip.name == "Rifle Reloading");
+    //var reloadEvent = c.events.FirstOrDefault(e => e.functionName == "ReloadAmmo");
+    //reloadEvent.functionName = "SendReloadAmmoMsg";
+  }
+
+  void ReloadAmmo(){
+    activeWeapon.SendMessage("ReloadAmmo");
   }
 
   void SwitchWeapons () {

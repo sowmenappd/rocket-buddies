@@ -21,6 +21,7 @@ public class Rocket : MonoBehaviour{
 
     public void Update(){
         rigidbody.AddForce(Vector3.down * mass * dipForce, ForceMode.Impulse);
+        transform.forward = transform.TransformDirection(transform.InverseTransformDirection(rigidbody.velocity));
     }
 
     void OnDrawGizmos(){

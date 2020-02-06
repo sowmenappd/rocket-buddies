@@ -5,6 +5,7 @@ public class Weapon : MonoBehaviour{
 
     public int magazineAmmoCap;
     public int currentAmmo;
+    public int totalWeaponAmmoCapacity;
 
     public enum FireMode { Single, Triple, Auto }
     public FireMode fireMode;
