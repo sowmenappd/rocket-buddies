@@ -74,15 +74,13 @@ public class MapObjectSpawner : MonoBehaviour
                                 tree.RandomRotate();
                             } 
                             
-                            var sp = obj.transform.GetComponent<SpawnableObject>();
-                            if (sp){
-                                //if()
-                            }
                             spawned.Add(obj);
-
                             var spawnable = obj.transform.GetComponent<SpawnableObject>();
-                            ProcessNeighboringNodeWalkability(randomIndexX, randomIndexY,
+
+                            if(itemGroups[i].blocksPathfinding){
+                              ProcessNeighboringNodeWalkability(randomIndexX, randomIndexY,
                             false, Mathf.FloorToInt(spawnable.radius / nodeDisplacement));
+                            }
                         }
                     }
                 }
@@ -90,16 +88,12 @@ public class MapObjectSpawner : MonoBehaviour
 
         }
 
-
-        //get nodes to spawn items on (non-colliding)
-        //spawn walkable items
     }
 
-    void ProcessNeighboringNodeWalkability(int centerX, int centerY, bool walkable, float radius){
-        int roundedRadius = Mathf.RoundToInt(radius);
-        for(int j = centerY - roundedRadius; j < centerY + roundedRadius; j++){
+    void ProcessNeighboringNodeWalkability(int centerX, int centerY, bool walkable, int radius){
+        for(int j = centerY - radius; j < centerY + radius; j++){
             int y = Mathf.Clamp(j, 2, nodeGrid.sizeY-3);
-            for(int i = centerX - roundedRadius; i < centerX + roundedRadius; i++){
+            for(int i = centerX - radius; i < centerX + radius; i++){
                 int x = Mathf.Clamp(i, 2, nodeGrid.sizeX-3);
                 nodeGrid.nodes[y, x].walkable = walkable;
             }
@@ -137,6 +131,7 @@ public class MapObjectSpawner : MonoBehaviour
 public struct MapItemGroup
 {
     public string tag;
+    public bool blocksPathfinding;
     public List<SpawnableObject> items;
     public Vector2Int itemCountRange;
 }
