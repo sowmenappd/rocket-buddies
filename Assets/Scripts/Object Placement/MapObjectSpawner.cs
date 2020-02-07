@@ -36,6 +36,8 @@ public class MapObjectSpawner : MonoBehaviour
 
         DeleteExistingItems();
 
+        float nodeDisplacement = MapBuilder.I.vertexPlacementDistance;
+
         HashSet<Node> crossedNodes = new HashSet<Node>();
         spawned.Clear();
         for (var i = 0; i < itemGroups.Length; i++)
@@ -78,8 +80,9 @@ public class MapObjectSpawner : MonoBehaviour
                             }
                             spawned.Add(obj);
 
+                            var spawnable = obj.transform.GetComponent<SpawnableObject>();
                             ProcessNeighboringNodeWalkability(randomIndexX, randomIndexY,
-                            false, obj.transform.GetComponent<SpawnableObject>().radius);
+                            false, Mathf.FloorToInt(spawnable.radius / nodeDisplacement));
                         }
                     }
                 }

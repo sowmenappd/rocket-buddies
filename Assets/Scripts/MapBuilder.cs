@@ -35,7 +35,7 @@ public class MapBuilder : MonoBehaviour{
     Mesh mapMesh;
 
     [Space][Range(.05f, 10f)] public float vertexPlacementDistance;
-    [Range(.05f, 20f)] public float noiseScale;
+    [Range(.05f, 120f)] public float noiseScale;
     
     public bool autoUpdate;
     public bool generateCollider;
