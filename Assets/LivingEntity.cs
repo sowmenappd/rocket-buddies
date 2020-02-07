@@ -3,7 +3,7 @@ using UnityEngine;
 public class LivingEntity: MonoBehaviour {
 
     public int startingHealth;
-    protected int health;
+    public int health;
 
     public bool alive = false;
 

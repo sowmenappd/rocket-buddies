@@ -144,7 +144,6 @@ public class PlayerController : LivingEntity {
     float moveY = moveDir.z > 0 ? 1 : moveDir.z < 0 ? -1 : 0;
 
     Vector2 animDir = new Vector2 (moveX, moveY);
-    //animDir.Normalize();
 
     animator.SetFloat ("moveX", animDir.x);
     animator.SetFloat ("moveY", animDir.y);
