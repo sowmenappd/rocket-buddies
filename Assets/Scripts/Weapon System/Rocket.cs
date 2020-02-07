@@ -41,9 +41,9 @@ public class Rocket : MonoBehaviour{
                 if(ent != null && c.transform != owner){
                     ent.TakeDamage(damage);
                 }
-                Vector3 forceDir = (c.transform.position - hitPoint).normalized;
+                Vector3 forceDir = (c.transform.position - owner.position).normalized;
                 if(c.transform.GetComponent<Rigidbody>() != null)
-                    c.transform.GetComponent<Rigidbody>().AddForce(forceDir * 100f, ForceMode.Impulse);
+                    c.transform.GetComponent<Rigidbody>().AddForce(forceDir * 400f, ForceMode.Impulse);
             }
         }
         Destroy(gameObject);

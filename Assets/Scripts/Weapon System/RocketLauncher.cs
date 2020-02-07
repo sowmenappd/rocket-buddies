@@ -115,13 +115,13 @@ public class RocketLauncher : Weapon {
   
 
   public void LaunchRocket () {
-    var rocket = Instantiate (rocketPrefab, rocketSpawn.position, Quaternion.Euler (transform.forward));
+    var rocket = Instantiate (rocketPrefab, rocketSpawn.position, Quaternion.Euler(rocketSpawn.forward));
     rocket.owner = transform.root;
     rocket.transform.forward = transform.forward;
     var a = (rangeFinder.angle) * Mathf.Deg2Rad;
     var launchDir = rocket.transform.TransformDirection(new Vector3(0, Mathf.Sin(a), Mathf.Cos(a)));
     //PlayerController.Instance.Velocity + 
-    rocket.transform.GetComponent<Rigidbody> ().AddForce (launchDir * launchForce * 1.15f, ForceMode.Impulse);
+    rocket.transform.GetComponent<Rigidbody> ().AddForce ((launchDir) * launchForce * 1.15f, ForceMode.Impulse);
 
     currentAmmo--;
     if(currentAmmo == 0){

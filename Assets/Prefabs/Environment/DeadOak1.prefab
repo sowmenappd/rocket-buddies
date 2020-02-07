@@ -89,6 +89,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7006198277992587395}
   - component: {fileID: 2254534212964247761}
+  - component: {fileID: -1876070800913987668}
   m_Layer: 0
   m_Name: DeadOak1
   m_TagString: Untagged
@@ -103,7 +104,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6296135557158621840}
-  m_LocalRotation: {x: 0, y: 0.7363087, z: 0, w: -0.6766458}
+  m_LocalRotation: {x: 0, y: 0.26173794, z: 0, w: 0.96513903}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -127,3 +128,17 @@ MonoBehaviour:
   centerOffset: {x: -0.07, y: 0.8, z: -0.4}
   radius: 0.86
   ignoreGroundNormal: 0
+--- !u!64 &-1876070800913987668
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6296135557158621840}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}

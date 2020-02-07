@@ -90,6 +90,7 @@ GameObject:
   m_Component:
   - component: {fileID: 119557991813933848}
   - component: {fileID: 5992385245038405982}
+  - component: {fileID: -8520481133642058121}
   m_Layer: 0
   m_Name: SpruceTree1
   m_TagString: Untagged
@@ -104,7 +105,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8539595651912839912}
-  m_LocalRotation: {x: 0, y: 0.1625568, z: 0, w: -0.9866992}
+  m_LocalRotation: {x: 0, y: 0.076515354, z: 0, w: -0.9970684}
   m_LocalPosition: {x: -4.4078875, y: 17.607107, z: 18.337185}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -128,3 +129,17 @@ MonoBehaviour:
   centerOffset: {x: 0, y: 1.76, z: 0}
   radius: 3
   ignoreGroundNormal: 1
+--- !u!64 &-8520481133642058121
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8539595651912839912}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
