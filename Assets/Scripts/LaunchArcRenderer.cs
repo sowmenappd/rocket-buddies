@@ -14,26 +14,45 @@ public class LaunchArcRenderer : MonoBehaviour {
   float g;
   float radianAngle;
 
-  void SetArcProperties (float velocity, float angle) {
-    this.velocity = velocity;
-    this.angle = angle;
-    RenderArc ();
-  }
+  Weapon attachedToWeapon;
+  Transform attachedWeaponSpawnPos;
+
+  // void SetArcProperties (float velocity, float angle) {
+  //   this.velocity = velocity;
+  //   this.angle = angle;
+  //   RenderArc ();
+  // }
 
   void Awake () {
     lr = GetComponent<LineRenderer> ();
     g = Mathf.Abs (Physics.gravity.y);
+    attachedToWeapon = FindAttachedWeapon(transform);
+    attachedWeaponSpawnPos = attachedToWeapon.transform.GetChild(0);
+  }
+
+  Weapon FindAttachedWeapon(Transform t){
+    var par = t.parent;
+    while(par != null){
+      var weapon = par.GetComponent<Weapon>();
+      if(weapon) return weapon;
+      par = par.parent;
+    }
+    return null;
   }
 
   // Start is called before the first frame update
   void Start () {
+    print(g);
     RenderArc ();
+  }
+
+  void Update(){
+    RenderArc();
   }
 
   public void RenderArc () {
     lr.SetVertexCount (resolution + 1);
     lr.SetPositions (CalculateArcArray ());
-    transform.localEulerAngles = new Vector3 (angle, 0, 0);
   }
 
   Vector3[] CalculateArcArray () {

@@ -19,18 +19,17 @@ public class RocketLauncher : Weapon {
   public bool testing;
   public bool hasRangeFinder;
 
-  public Vector2 rangeFinderMinMaxRotation;
+  public Vector2 rangeFinderMinMaxVelocity;
 
-  float rfRotation;
+  float rfVelocity;
 
   public override void Start () {
     base.Start ();
     rocketSpawn = transform.GetChild (0);
     if (hasRangeFinder) {
       rangeFinder = rocketSpawn.GetChild (0).GetComponent<LaunchArcRenderer> ();
-      rfRotation = rangeFinder.transform.localEulerAngles.y;
+      rfVelocity = rangeFinderMinMaxVelocity.x;
     }
-    //SetReloadAnimationCallback();
   }
 
   void Update () {
@@ -48,12 +47,13 @@ public class RocketLauncher : Weapon {
   }
 
   void ProcessRangefinderVerticalMovement () {
-    float mov = -Input.GetAxis ("Mouse Y");
+    float mov = Input.GetAxis ("Mouse Y");
 
     float amount = mov * rangeFinderMoveSpeed;
-    rfRotation += amount;
-    rfRotation = Mathf.Clamp(rfRotation, rangeFinderMinMaxRotation.x, rangeFinderMinMaxRotation.y);
-    rocketSpawn.localEulerAngles = new Vector3 (rfRotation, rocketSpawn.localEulerAngles.y, rocketSpawn.localEulerAngles.z);
+    rfVelocity += amount;
+    rfVelocity = Mathf.Clamp(rfVelocity, rangeFinderMinMaxVelocity.x, rangeFinderMinMaxVelocity.y);
+    rangeFinder.velocity = rfVelocity;
+    launchForce = rfVelocity;
   }
 
   IEnumerator WeaponRecoil () {
@@ -118,7 +118,10 @@ public class RocketLauncher : Weapon {
     var rocket = Instantiate (rocketPrefab, rocketSpawn.position, Quaternion.Euler (transform.forward));
     rocket.owner = transform.root;
     rocket.transform.forward = transform.forward;
-    rocket.transform.GetComponent<Rigidbody> ().AddForce (PlayerController.Instance.Velocity + rocketSpawn.forward * launchForce, ForceMode.Impulse);
+    var a = (rangeFinder.angle) * Mathf.Deg2Rad;
+    var launchDir = rocket.transform.TransformDirection(new Vector3(0, Mathf.Sin(a), Mathf.Cos(a)));
+    //PlayerController.Instance.Velocity + 
+    rocket.transform.GetComponent<Rigidbody> ().AddForce (launchDir * launchForce * 1.15f, ForceMode.Impulse);
 
     currentAmmo--;
     if(currentAmmo == 0){

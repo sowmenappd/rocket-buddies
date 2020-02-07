@@ -39,9 +39,12 @@ public class PlayerController : LivingEntity {
     }
   }
 
+  void Awake(){
+    instance = this;
+  }
+
   protected override void Start () {
     base.Start ();
-    instance = this;
     rb = GetComponent<Rigidbody> ();
     animator = GetComponent<Animator> ();
     holder = transform.GetChild (0).GetComponent<WeaponHolder> ();

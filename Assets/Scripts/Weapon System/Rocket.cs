@@ -2,25 +2,27 @@ using UnityEngine;
 
 public class Rocket : MonoBehaviour{
     
-    public float mass;
-    public float dipForce;
+    //public float mass;
+    //public float dipForce;
 
     public float lifetime;
 
     public int damage;
     public float explosionRadius;
 
+    public GameObject obj;
+
     Rigidbody rigidbody;
     public Transform owner;
 
     public void Start(){
         rigidbody = GetComponent<Rigidbody>();
-        rigidbody.mass = mass;
+        //rigidbody.mass = mass;
         Destroy(gameObject, lifetime);
     }
 
     public void Update(){
-        rigidbody.AddForce(Vector3.down * mass * dipForce, ForceMode.Impulse);
+        //rigidbody.AddForce(Vector3.down * mass * dipForce * Time.deltaTime, ForceMode.Impulse);
         transform.forward = transform.TransformDirection(transform.InverseTransformDirection(rigidbody.velocity));
     }
 
@@ -30,7 +32,7 @@ public class Rocket : MonoBehaviour{
 
     public void OnCollisionEnter(Collision col){
         Vector3 hitPoint = col.GetContact(0).point;
-
+        Instantiate(obj, hitPoint, Quaternion.identity);
         var hits = Physics.OverlapSphere(hitPoint, explosionRadius);
         var mCol = GetComponent<Collider>();
         foreach(var c in hits){
