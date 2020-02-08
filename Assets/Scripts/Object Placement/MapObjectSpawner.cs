@@ -22,6 +22,15 @@ public class MapObjectSpawner : MonoBehaviour
     [HideInInspector]
     public List<GameObject> spawned;
 
+    public Transform cube;
+
+    void Update()
+    {
+        var pos = cube.position;
+        Node n = GridBuilder.I.grid.NodeFromWorldPostion(pos);
+        print(n.worldPos.ToString());
+    }
+
     public void SpawnAllItems()
     {
         if (nodeGrid == null)
@@ -78,8 +87,9 @@ public class MapObjectSpawner : MonoBehaviour
                             var spawnable = obj.transform.GetComponent<SpawnableObject>();
 
                             if(itemGroups[i].blocksPathfinding){
+                                var radius = Mathf.Max(2, Mathf.FloorToInt(spawnable.radius / nodeDisplacement));
                               ProcessNeighboringNodeWalkability(randomIndexX, randomIndexY,
-                            false, Mathf.FloorToInt(spawnable.radius / nodeDisplacement));
+                            false, radius);
                             }
                         }
                     }

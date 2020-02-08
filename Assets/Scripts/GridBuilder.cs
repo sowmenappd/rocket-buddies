@@ -32,7 +32,7 @@ public class GridBuilder : MonoBehaviour {
     SetNodeHeightAndWalkability (MeshGenerator.RequestHeightMap (), MeshGenerator.RequestMaxHeight ());
   }
 
-  public void SetNodeHeightAndWalkability (float[, ] noiseMap, float maxHeight) {
+    public void SetNodeHeightAndWalkability (float[, ] noiseMap, float maxHeight) {
     //MonoBehaviour.print("Received noise map of length " + noiseMap.GetLength(0));
     for (int i = 0; i < grid.nodes.GetLength (0); i++) {
       for (int j = 0; j < grid.nodes.GetLength (1); j++) {
@@ -107,6 +107,16 @@ public class Grid {
       }
     }
   }
+
+    public Node NodeFromWorldPostion(Vector3 pos)
+    {
+        float worldX = pos.x;
+        float worldZ = pos.z;
+
+        int nodeX = Mathf.RoundToInt(((worldX + (sizeX / 2)) / (sizeX * nodeDiameter)) * sizeX);
+        int nodeZ = Mathf.RoundToInt(((worldZ + (sizeY / 2)) / (sizeY * nodeDiameter)) * sizeY);
+        return nodes[nodeZ, nodeX];
+    }
 
 }
 
