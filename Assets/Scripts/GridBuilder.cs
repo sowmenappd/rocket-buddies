@@ -22,6 +22,8 @@ public class GridBuilder : MonoBehaviour {
   public Grid grid;
   public Vector3 gridBaseOffset;
 
+  public bool debugNodes = false;
+
   void Start () {
     MeshGenerator.OnHeightMapGenerated += SetNodeHeightAndWalkability;
     I.GenerateGrid (sizeX, sizeY, nodeDiameter);
@@ -65,6 +67,7 @@ public class GridBuilder : MonoBehaviour {
   }
 
   void OnDrawGizmos () {
+    if (!debugNodes) return;
     if (I == null || grid == null) return;
     if (grid.nodes == null) return;
 
