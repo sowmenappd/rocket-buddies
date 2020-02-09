@@ -17,6 +17,8 @@ public class LaunchArcRenderer : MonoBehaviour {
   Weapon attachedToWeapon;
   Transform attachedWeaponSpawnPos;
 
+  public bool botControl;
+
   // void SetArcProperties (float velocity, float angle) {
   //   this.velocity = velocity;
   //   this.angle = angle;

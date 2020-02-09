@@ -24,13 +24,6 @@ public class MapObjectSpawner : MonoBehaviour
 
     public Transform cube;
 
-    void Update()
-    {
-        var pos = cube.position;
-        Node n = GridBuilder.I.grid.NodeFromWorldPostion(pos);
-        print(n.worldPos.ToString());
-    }
-
     public void SpawnAllItems()
     {
         if (nodeGrid == null)

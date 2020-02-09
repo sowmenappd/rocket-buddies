@@ -39,6 +39,13 @@ public class PlayerController : LivingEntity {
     }
   }
 
+  public bool IsAttacking
+    {
+        get{
+            return activeWeapon.canFire;
+        }
+    }
+
   void Awake(){
     instance = this;
   }
@@ -53,7 +60,6 @@ public class PlayerController : LivingEntity {
 
     Cursor.lockState = CursorLockMode.Locked;
     Cursor.visible = false;
-    SetReloadAnimationCallback();
   }
 
   void Update () {
@@ -78,12 +84,6 @@ public class PlayerController : LivingEntity {
     }
   }
 
-  void SetReloadAnimationCallback(){
-    //var controller = animator;
-    //var c = controller.runtimeAnimatorController.animationClips.First(clip => clip.name == "Rifle Reloading");
-    //var reloadEvent = c.events.FirstOrDefault(e => e.functionName == "ReloadAmmo");
-    //reloadEvent.functionName = "SendReloadAmmoMsg";
-  }
 
   void ReloadAmmo(){
     activeWeapon.SendMessage("ReloadAmmo");

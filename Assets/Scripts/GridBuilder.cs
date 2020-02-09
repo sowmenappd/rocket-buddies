@@ -110,12 +110,18 @@ public class Grid {
 
     public Node NodeFromWorldPostion(Vector3 pos)
     {
-        float worldX = pos.x;
-        float worldZ = pos.z;
+        var index = NodeIndicesFromWorldPostion(pos);
+        return nodes[index.x, index.y];
+    }
+
+    public Vector2Int NodeIndicesFromWorldPostion(Vector3 pos)
+    {
+        float worldX = pos.x + GridBuilder.I.gridBaseOffset.x;
+        float worldZ = pos.z + GridBuilder.I.gridBaseOffset.z;
 
         int nodeX = Mathf.RoundToInt(((worldX + (sizeX / 2)) / (sizeX * nodeDiameter)) * sizeX);
         int nodeZ = Mathf.RoundToInt(((worldZ + (sizeY / 2)) / (sizeY * nodeDiameter)) * sizeY);
-        return nodes[nodeZ, nodeX];
+        return new Vector2Int(nodeX, nodeZ);
     }
 
 }

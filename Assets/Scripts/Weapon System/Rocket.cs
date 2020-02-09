@@ -32,7 +32,7 @@ public class Rocket : MonoBehaviour{
 
     public void OnCollisionEnter(Collision col){
         Vector3 hitPoint = col.GetContact(0).point;
-        Instantiate(obj, hitPoint, Quaternion.identity);
+        //Instantiate(obj, hitPoint, Quaternion.identity);
         var hits = Physics.OverlapSphere(hitPoint, explosionRadius);
         var mCol = GetComponent<Collider>();
         foreach(var c in hits){

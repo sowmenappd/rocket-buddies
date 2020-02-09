@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,6 +29,8 @@ public class Enemy : LivingEntity {
   const float onStatePersistAttackRangeChangeTimer = 3f;
   float currentAttackStateTimer = 0;
 
+  public Transform A, B;
+
 
   protected override void Start () {
     base.Start ();
@@ -45,6 +48,15 @@ public class Enemy : LivingEntity {
     state = State.Idle;
     rb = GetComponent<Rigidbody>();
   }
+
+  void OnDrawGizmos()
+    {
+        var path = GetPath(A.position, B.position);
+        foreach(var a in path)
+        {
+            Gizmos.DrawCube(a, Vector3.one);
+        }
+    }
 
   void Update () {
     if (!alive) return;
@@ -70,11 +82,16 @@ public class Enemy : LivingEntity {
   void PerformStateActions(State state){
     switch(state){
       case State.Moving:
-      case State.Fleeing:
         ChasePlayer();
+        break;
+    case State.Fleeing:
+        Flee();
         break;
       case State.Attacking:
         AttackPlayer();
+        break;
+      case State.Reloading:
+        ReloadAmmo();
         break;
     }
     return;
@@ -84,6 +101,7 @@ public class Enemy : LivingEntity {
 
   void ChasePlayer(){
     Vector3 dir = (player.position - transform.position);
+    dir.y = 0;
     animMoveDirection = dir.normalized;
     FaceDirection(animMoveDirection);
     transform.Translate(dir.normalized * moveSpeed * Time.deltaTime);
@@ -92,9 +110,36 @@ public class Enemy : LivingEntity {
 
   void AttackPlayer(){
     Vector3 dir = (player.position - transform.position);
+    dir.y = 0;
     FaceDirection(dir.normalized);
+    Fire();
     print("Attacking");
   }
+
+  void Flee()
+  {
+        Vector3 dir = (transform.position - player.position);
+        dir.y = 0;
+        animMoveDirection = dir.normalized;
+        FaceDirection(animMoveDirection);
+        transform.Translate(animMoveDirection * moveSpeed * Time.deltaTime);
+        print("Fleeing");
+    }
+
+  List<Vector3> GetPath(Vector3 startPos, Vector3 endPos)
+    {
+        var path = new List<Vector3>();
+        var grid = GridBuilder.I.grid;
+
+        var v = grid.NodeIndicesFromWorldPostion(startPos);
+        var w = grid.NodeIndicesFromWorldPostion(endPos);
+
+        var startNode = grid.nodes[v.y, v.x];
+        var endNode = grid.nodes[w.y, w.x];
+        path.Add(startNode.worldPos);
+        path.Add(endNode.worldPos);
+        return path;
+    }
 
   void ApplyAnimation (State state) {
     switch (state) {
@@ -111,17 +156,23 @@ public class Enemy : LivingEntity {
         animator.SetFloat ("moveY", animDir.y);
         break;
       case State.Attacking:
-        animator.SetFloat ("moveX", 0);
-        animator.SetFloat ("moveY", 0);
+        animator.SetFloat("moveX", 0);
+        animator.SetFloat("moveY", 0);
         break;
       case State.Reloading:
-        if(animator.GetCurrentAnimatorStateInfo(1).IsName("Idle"))
-        animator.SetTrigger("reload");
+        if (animator.GetCurrentAnimatorStateInfo(1).IsName("Idle"))
+            animator.SetTrigger("reload");
+        else
+            animator.ResetTrigger("reload");
         break;
     }
   }
 
   State CalculateNextState (State state) {
+    if (IsAttackIncoming(player))
+    {
+        return State.Fleeing;
+    }
     if (state == State.Idle) {
       if (stamina > 0) {
         if (IsAttackIncoming (player)) {
@@ -154,7 +205,7 @@ public class Enemy : LivingEntity {
         }
       } else {
         if (stamina > 0) {
-          return State.Fleeing;
+          return State.Moving;
         } else {
           return State.Idle;
         }
@@ -164,7 +215,7 @@ public class Enemy : LivingEntity {
         if (IsAttackIncoming (player)) {
           return State.Fleeing;
         } else {
-          return State.Moving;
+          return State.Idle;
         }
       } else {
         if (IsTargetWithinAttackRange (player)) {
@@ -196,11 +247,29 @@ public class Enemy : LivingEntity {
         return State.Idle;
       }
     } else if (state == State.Reloading) {
-      if (stamina > 0) {
-        return State.Fleeing;
-      } else {
-        return State.Idle;
-      }
+        if (activeWeapon.currentAmmo != 0)
+        {
+            if (stamina > 0)
+            {
+                return State.Attacking;
+            }
+            else
+            {
+                return State.Idle;
+            }
+        }
+        else
+        {
+            if(stamina > 0)
+            {
+                return State.Fleeing;
+            }
+            else
+            {
+                return State.Reloading;
+            }
+        }
+      
     }
     return state;
   }
@@ -216,8 +285,33 @@ public class Enemy : LivingEntity {
     //transform.eulerAngles = new Vector3 (transform.eulerAngles.x, y, transform.eulerAngles.z);
   }
 
-  bool IsWeaponLoaded (Weapon weapon) {
-    return (weapon.currentAmmo > 0 && weapon.canFire && !weapon.switching);
+    float fireTimer = 0;
+
+    protected virtual void Fire()
+    {
+        fireTimer += Time.deltaTime;
+        if(activeWeapon.canFire && fireTimer > 2)
+        {
+          activeWeapon.Fire();
+          print("Firing enemy rockets.");
+          fireTimer = 0;
+        }
+        else if(!activeWeapon.canFire && fireTimer < 2)
+        {
+            if (player.GetComponent<PlayerController>().IsAttacking)
+                state = State.Fleeing;
+
+        }
+    }
+
+    void ReloadAmmo()
+    {
+        if(activeWeapon.currentAmmo == 0)
+            activeWeapon.SendMessage("ReloadAmmo");
+    }
+
+    public bool IsWeaponLoaded (Weapon weapon) {
+    return (weapon.currentAmmo > 0 && !weapon.switching);
   }
 
   bool IsTargetWithinAttackRange (Transform attackTarget) {
@@ -225,7 +319,13 @@ public class Enemy : LivingEntity {
   }
 
   bool IsAttackIncoming (Transform fromTarget) {
-    return false;
+
+    var attacking = false;
+    var rk = FindObjectsOfType<Rocket>();
+    if (rk == null)
+        return false;
+    attacking = (rk.FirstOrDefault(r => r.owner == player)) != null;
+    return attacking;
   }
 
   protected virtual void Fire (Transform target) {
@@ -238,6 +338,10 @@ public class Enemy : LivingEntity {
 
   protected override void Die () {
     alive = false;
+    GetComponent<Collider>().enabled = false;
+    GetComponent<Rigidbody>().useGravity = false;
+    GetComponent<Rigidbody>().velocity = Vector3.zero;
+    Destroy(gameObject, 1);
     print ("Enemy dead.");
   }
 }

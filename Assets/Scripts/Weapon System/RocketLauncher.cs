@@ -47,6 +47,9 @@ public class RocketLauncher : Weapon {
   }
 
   void ProcessRangefinderVerticalMovement () {
+    if (rangeFinder.botControl) return;
+
+    //control with mouse Y
     float mov = Input.GetAxis ("Mouse Y");
 
     float amount = mov * rangeFinderMoveSpeed;
@@ -103,10 +106,13 @@ public class RocketLauncher : Weapon {
       int amountToLoad = Mathf.Min(totalWeaponAmmoCapacity - currentAmmo, magazineAmmoCap - currentAmmo);
       currentAmmo += amountToLoad;
       totalWeaponAmmoCapacity -= amountToLoad;
+      canFire = true;
     }
   }
 
   void StartWeaponReload(){
+    if (HasLoadedAmmo()) return;
+    canFire = false;
     print("reloading in animator");
     var controller = transform.root.GetComponent<Animator>();
     controller.SetTrigger("reload");
@@ -124,6 +130,8 @@ public class RocketLauncher : Weapon {
     rocket.transform.GetComponent<Rigidbody> ().AddForce ((launchDir) * launchForce * 1.15f, ForceMode.Impulse);
 
     currentAmmo--;
+    canFire = false;
+    shotTimer = waitDurationPerShot;
     if(currentAmmo == 0){
       var controller = transform.root.GetComponent<Animator>();
       controller.SetTrigger("reload");
