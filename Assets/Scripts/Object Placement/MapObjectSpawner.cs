@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MapObjectSpawner : MonoBehaviour
@@ -22,7 +23,12 @@ public class MapObjectSpawner : MonoBehaviour
     [HideInInspector]
     public List<GameObject> spawned;
 
+    public bool autoRandomise;
+
     public Transform cube;
+
+    Dictionary<string, int> obstacleRadiusLookup = new Dictionary<string, int>();
+    Dictionary<string, bool> obstacleWalkableStatusLookup = new Dictionary<string, bool>();
 
     public void SpawnAllItems()
     {
@@ -31,10 +37,12 @@ public class MapObjectSpawner : MonoBehaviour
             nodeGrid = GridBuilder.I.grid;
         }
 
-        var nodes = nodeGrid.nodes;
-        foreach(var node in nodes){
-            node.walkable = true;
+        if (!autoRandomise)
+        {
+            UpdateGridMapWalkablilityStatusOnExistingGameObjects(spawned);
+            return;
         }
+        
 
         DeleteExistingItems();
 
@@ -44,24 +52,26 @@ public class MapObjectSpawner : MonoBehaviour
         spawned.Clear();
         for (var i = 0; i < itemGroups.Length; i++)
         {
-            int numItemsPerGroup = Random.Range(itemGroups[i].itemCountRange.x, itemGroups[i].itemCountRange.y);
+            int numItemsPerGroup = UnityEngine.Random.Range(itemGroups[i].itemCountRange.x, itemGroups[i].itemCountRange.y);
             int currentCount = 0;
             print("Item count in group " + i + ": " + numItemsPerGroup);
             while (currentCount < numItemsPerGroup)
             {
                 foreach (var item in itemGroups[i].items)
                 {
+                    obstacleRadiusLookup[item.gameObject.name] = Mathf.FloorToInt(item.radius / nodeDisplacement);
+                    obstacleWalkableStatusLookup[item.gameObject.name] = itemGroups[i].blocksPathfinding;
                     if (currentCount >= numItemsPerGroup) break;
                     Node node = null;
-                    int itemCount = Random.Range(0, (numItemsPerGroup / itemGroups[i].items.Count));
+                    int itemCount = UnityEngine.Random.Range(0, (numItemsPerGroup / itemGroups[i].items.Count));
                     currentCount += itemCount;
                     for (int x = 0; x < itemCount; x++)
                     {
                         int randomIndexX, randomIndexY;
                         do
                         {
-                            randomIndexX = Random.Range(2, nodeGrid.nodes.GetLength(1) - 2);
-                            randomIndexY = Random.Range(2, nodeGrid.nodes.GetLength(0) - 2);
+                            randomIndexX = UnityEngine.Random.Range(2, nodeGrid.nodes.GetLength(1) - 2);
+                            randomIndexY = UnityEngine.Random.Range(2, nodeGrid.nodes.GetLength(0) - 2);
                         } while (crossedNodes.Contains(nodeGrid.nodes[randomIndexY, randomIndexX]));
                         crossedNodes.Add(node);
                         nodeGrid.nodes[randomIndexY, randomIndexX].walkable = false;
@@ -93,6 +103,31 @@ public class MapObjectSpawner : MonoBehaviour
 
     }
 
+
+    void UpdateGridMapWalkablilityStatusOnExistingGameObjects(List<GameObject> spawned)
+    {
+        var grid = GridBuilder.I.grid;
+        for(int i=0; i<spawned.Count; i++)
+        {
+            Vector2Int index = grid.NodeIndicesFromWorldPostion(spawned[i].transform.position);
+            try
+            {
+                var w = obstacleWalkableStatusLookup[spawned[i].name];
+                var r = Mathf.Max(2, Mathf.FloorToInt(obstacleRadiusLookup[spawned[i].name]));
+                ProcessNeighboringNodeWalkability(index.x, index.y, false, r);
+
+            } catch(Exception)
+            {
+                print("key not found:" + spawned[i].name);
+            }
+        }
+        foreach(var k in obstacleRadiusLookup)
+        {
+            print(k.Key + " " + k.Value + " " + obstacleWalkableStatusLookup[k.Key]);
+
+        }
+    }
+
     void ProcessNeighboringNodeWalkability(int centerX, int centerY, bool walkable, int radius){
         for(int j = centerY - radius; j < centerY + radius; j++){
             int y = Mathf.Clamp(j, 2, nodeGrid.sizeY-3);
@@ -100,14 +135,6 @@ public class MapObjectSpawner : MonoBehaviour
                 int x = Mathf.Clamp(i, 2, nodeGrid.sizeX-3);
                 nodeGrid.nodes[y, x].walkable = walkable;
             }
-        }
-    }
-
-    private void VerifyItemTouchesGround(GameObject obj)
-    {
-        if (Physics.Raycast(obj.transform.position, Vector3.down, 10f, (LayerMask)8))
-        {
-            print("Need to shift down " + obj.transform.position);
         }
     }
 
