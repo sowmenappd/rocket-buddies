@@ -29,7 +29,7 @@ public class Enemy : LivingEntity {
   const float onStatePersistAttackRangeChangeTimer = 3f;
   float currentAttackStateTimer = 0;
 
-  public Transform A, B;
+  public Transform A, B, C;
 
 
   protected override void Start () {
@@ -53,14 +53,24 @@ public class Enemy : LivingEntity {
 
   void OnDrawGizmos()
     {
-        var path = GetPath(A.position, B.position);
-        foreach(var a in path)
-        {
-            Gizmos.DrawCube(a, Vector3.one * .3f);
-        }
+        if(path != null)
+            foreach (var a in path)
+            {
+                Gizmos.DrawCube(a, Vector3.one * .3f);
+            }
+        //print(GetDotProduct(A.position, B.position, C.position));
     }
 
-  void Update () {
+    float GetDotProduct(Vector3 a, Vector3 b, Vector3 c)
+    {
+        var d1 = (b - a).normalized;
+        d1.y = 0;
+        var d2 = (c - a).normalized;
+        d2.y = 0;
+        return Vector3.Dot(d1, d2);
+    }
+
+    void Update () {
     if (!alive) return;
 
     state = CalculateNextState (state);
@@ -100,14 +110,42 @@ public class Enemy : LivingEntity {
   }
 
   Rigidbody rb;
+  List<Vector3> path = new List<Vector3>();
+  float maxPathRetraceTime = 3f;
+  float pathCurrentTime = 0;
+  public int currentPointIndex = 0;
 
   void ChasePlayer(){
     Vector3 dir = (player.position - transform.position);
     dir.y = 0;
     animMoveDirection = dir.normalized;
     FaceDirection(animMoveDirection);
-    transform.Translate(dir.normalized * moveSpeed * Time.deltaTime);
-    print("Moving");
+    if (path != null && path.Count > 0)
+    {
+        Vector3 pos = path[currentPointIndex];
+        dir = pos - transform.position;
+        transform.Translate(dir.normalized * moveSpeed * Time.deltaTime);
+        if(currentPointIndex > 0)
+        {
+            if(dir.sqrMagnitude < 0.1f)
+            {
+                currentPointIndex--;
+            }
+        }
+        pathCurrentTime += Time.deltaTime;
+        if(pathCurrentTime > maxPathRetraceTime)
+        {
+            path = GetPath(transform.position, player.position);
+            pathCurrentTime = 0;
+            currentPointIndex = path.Count - 1;
+        }
+    } else {
+            path = GetPath(transform.position, player.position);
+            pathCurrentTime = 0;
+            currentPointIndex = path.Count - 1;
+    }
+
+        print("Moving");
   }
 
   void AttackPlayer(){
@@ -150,13 +188,16 @@ public class Enemy : LivingEntity {
         resolution = Mathf.RoundToInt(Mathf.Lerp(2f, grid.sizeX, distance/(float)grid.sizeX));
         float step = distance / resolution;
         Vector3 dir = (endNode.worldPos - startNode.worldPos).normalized;
-        //dir.y = 0;
+        dir.y = 0;
         Vector3 currPos = startPos;
 
         Node lastWalkableNode = startNode;
 
-        for(int i=0; i<=resolution; i++)
+        var visited = new HashSet<Node>();
+
+        for (int i=0; i<=resolution; i++)
         {
+            if (lastWalkableNode == endNode) break;
             RaycastHit hit;
             var obstacleNode = Physics.Raycast(currPos + Vector3.up * 100f, Vector3.down, out hit, 1000f);
             //process obstacle node
@@ -165,15 +206,79 @@ public class Enemy : LivingEntity {
             if (node.walkable)
             {
                 path.Add(node.worldPos + Vector3.up);
-                lastWalkableNode = node; 
+                lastWalkableNode = node;
+                currPos += dir * step;
+
             }
             else
             {
                 //apply floodfill on last walkable node and get another node that is walkable
                 //update direction from new walkable node
                 //add node to path
+                //set lw node to new node
+                Node n = FindNextBestNeighbourNode(grid, lastWalkableNode, endNode);
+                dir = (endNode.worldPos - n.worldPos).normalized;
+                path.Add(n.worldPos);
+                lastWalkableNode = n;
+                currPos = n.worldPos + dir * step;
+
+                //i--;
+                #region testing
+
+                /*
+                //bool pathFound = false;
+                print("Blocked on node " + node.worldPos);
+
+                var cnode = lastWalkableNode;
+                //int a = 0, MAX_ITERATIONS = 100;
+
+                //while (!pathFound && a++ < MAX_ITERATIONS)
+                //{
+                var neighbours = grid.GetNeighboursOf(cnode, 10).Where(n => {
+                    if (n.walkable && !visited.Contains(n))
+                    {
+                        if(Vector3.Distance(n.worldPos, endNode.worldPos) 
+                        < Vector3.Distance(cnode.worldPos, endNode.worldPos))
+                        {
+                            visited.Add(n);
+                            return true;
+                        }
+                    }
+                    return false;
+                }).ToList();
+                if (neighbours.Count == 0)
+                {
+                    print("LIST EMPTY?");
+                    continue;
+                    //return path;
+                }
+                Node bestNode = neighbours[0];
+                float bestDot = 0;
+                Vector3 bestDir = Vector3.zero;
+                while (neighbours.Count > 0)
+                {
+                    cnode = neighbours[0];
+                    neighbours.RemoveAt(0);
+                    Vector3 newDir = (endNode.worldPos - cnode.worldPos).normalized;
+                    float yHeight = newDir.y;
+                    newDir.y = 0;
+                    Vector3 oldDir = new Vector3(dir.x, 0, dir.z);
+                    float dot = Vector3.Dot(newDir, oldDir);
+                    if (dot > bestDot){
+                        bestDot = dot;
+                        bestDir = newDir;
+                        bestDir.y = yHeight;
+                        bestNode = cnode;
+                    }
+                }
+                dir = bestDir.normalized;
+                path.Add(bestNode.worldPos + Vector3.up);
+                lastWalkableNode = bestNode;
+                //}
+                */
+
+                #endregion
             }
-            currPos += dir * step;
 
         }
 
@@ -181,6 +286,42 @@ public class Enemy : LivingEntity {
         //path.Add(endNode.worldPos);
         return path;
     }
+
+    Node FindNextBestNeighbourNode(Grid grid, Node current, Node targetNode)
+    {
+        var sqrDistLower = (targetNode.worldPos - current.worldPos).sqrMagnitude;
+
+        //List<Node> checkList = new List<Node>();
+        HashSet<Node> seen = new HashSet<Node>();
+
+        //checkList.Add(current);
+        bool found = false;
+        Node curr = current;//checkList[0];
+        int r = 0;
+        while(!found && r++ < 100){
+            //checkList.RemoveAt(0);
+            var neighbours = grid.GetNeighboursOf(curr);
+            foreach(var n in neighbours){
+                if (!n.walkable) continue;
+                var sqrDist = (n.worldPos - targetNode.worldPos).sqrMagnitude;
+                if (seen.Contains(n) || sqrDist > sqrDistLower) continue;
+                else {
+                    seen.Add(n);
+                    if(sqrDist < sqrDistLower){
+                        sqrDistLower = sqrDist;
+                        curr = n;
+                        found = true;
+                    }
+                }
+
+            }
+        }
+        //if (curr != current)
+            return curr;
+        //else
+            //return null;
+    }
+
 
   void ApplyAnimation (State state) {
     switch (state) {
