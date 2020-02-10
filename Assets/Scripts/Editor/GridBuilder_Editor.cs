@@ -14,5 +14,11 @@ public class GridBuilder_Editor : Editor
             GridBuilder.I = t;
             t?.GenerateGrid(t.sizeX, t.sizeY, t.nodeDiameter);
         }
+
+        if(GUILayout.Button("Toggle: Display Only Unwalkable Nodes"))
+        {
+            var t = target as GridBuilder;
+            t.displayOnlyUnwwalkable = !t.displayOnlyUnwwalkable;
+        }
     }
 }

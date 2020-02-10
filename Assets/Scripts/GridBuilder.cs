@@ -23,6 +23,7 @@ public class GridBuilder : MonoBehaviour {
   public Vector3 gridBaseOffset;
 
   public bool debugNodes = false;
+  [HideInInspector] public bool displayOnlyUnwwalkable = false;
 
   void Start () {
     MeshGenerator.OnHeightMapGenerated += SetNodeHeightAndWalkability;
@@ -30,7 +31,10 @@ public class GridBuilder : MonoBehaviour {
   }
 
   public void GenerateGrid (int sizeX, int sizeY, float nodeDiameter) {
-    //grid = new Grid (sizeX, sizeY, nodeDiameter);
+    if(grid == null)
+        grid = new Grid (sizeX, sizeY, nodeDiameter);
+    //else if(grid.nodes == null)
+        //grid.nodes 
     SetNodeHeightAndWalkability (MeshGenerator.RequestHeightMap (), MeshGenerator.RequestMaxHeight ());
   }
 
@@ -78,6 +82,7 @@ public class GridBuilder : MonoBehaviour {
 
     nodeDiameter = nodeDiameter >= 0.05 ? nodeDiameter : 0.05f;
     foreach (Node n in grid.nodes) {
+      if (displayOnlyUnwwalkable && n.walkable) continue;
       Gizmos.color = n.walkable ? Color.green : Color.red;
       Gizmos.DrawSphere (n.worldPos, displayNodeSize);
     }
@@ -107,10 +112,10 @@ public class Grid {
     int nodesOnYaxis = Mathf.RoundToInt (sizeY / nodeDiameter);
     nodes = new Node[nodesOnYaxis, nodesOnXaxis];
     MonoBehaviour.print (nodesOnXaxis + " " + nodesOnYaxis);
-
+    var offset = GridBuilder.I.gridBaseOffset;
     for (int i = 0; i < nodesOnYaxis; i++) {
       for (int j = 0; j < nodesOnXaxis; j++) {
-        Vector3 spawnPos = new Vector3 (center.x - (sizeX * nodeDisplacement / 2) + (j * nodeDiameter * nodeDisplacement), 0, center.y - (sizeY * nodeDisplacement/ 2) + (i * nodeDiameter * nodeDisplacement)) + GridBuilder.I.gridBaseOffset;
+        Vector3 spawnPos = new Vector3 (center.x + offset.x - (sizeX * nodeDisplacement / 2) + (j * nodeDiameter * nodeDisplacement), 0, center.z + offset.z - (sizeY * nodeDisplacement/ 2) + (i * nodeDiameter * nodeDisplacement));
         nodes[i, j] = new Node (spawnPos, null, true);
       }
     }

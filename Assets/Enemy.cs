@@ -129,8 +129,12 @@ public class Enemy : LivingEntity {
   List<Vector3> GetPath(Vector3 startPos, Vector3 endPos)
     {
         var path = new List<Vector3>();
-        var grid = GridBuilder.I.grid;
-
+        var grid = FindObjectOfType<GridBuilder>().grid;
+        if(grid == null)
+        {
+            var gb = FindObjectOfType<GridBuilder>();
+            gb.GenerateGrid(gb.sizeX, gb.sizeY, gb.nodeDiameter);
+        }
         var v = grid.NodeIndicesFromWorldPostion(startPos);
         var w = grid.NodeIndicesFromWorldPostion(endPos);
 
@@ -178,7 +182,10 @@ public class Enemy : LivingEntity {
         if (IsAttackIncoming (player)) {
           return State.Fleeing;
         } else {
-          return State.Moving;
+          if(IsTargetWithinAttackRange(player))
+            return State.Attacking;
+          else
+            return State.Moving;
         }
       } else {
         if (IsTargetWithinAttackRange (player)) {
