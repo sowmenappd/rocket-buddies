@@ -49,12 +49,14 @@ public class Enemy : LivingEntity {
     rb = GetComponent<Rigidbody>();
   }
 
+    public LayerMask obstacleLayer;
+
   void OnDrawGizmos()
     {
         var path = GetPath(A.position, B.position);
         foreach(var a in path)
         {
-            Gizmos.DrawCube(a, Vector3.one);
+            Gizmos.DrawCube(a, Vector3.one * .3f);
         }
     }
 
@@ -124,15 +126,19 @@ public class Enemy : LivingEntity {
         FaceDirection(animMoveDirection);
         transform.Translate(animMoveDirection * moveSpeed * Time.deltaTime);
         print("Fleeing");
-    }
+  }
+
+
+    public int resolution = 5;
 
   List<Vector3> GetPath(Vector3 startPos, Vector3 endPos)
     {
         var path = new List<Vector3>();
         var grid = FindObjectOfType<GridBuilder>().grid;
-        if(grid == null)
+        var gb = FindObjectOfType<GridBuilder>();
+
+        if (grid == null)
         {
-            var gb = FindObjectOfType<GridBuilder>();
             gb.GenerateGrid(gb.sizeX, gb.sizeY, gb.nodeDiameter);
         }
         var v = grid.NodeIndicesFromWorldPostion(startPos);
@@ -140,8 +146,39 @@ public class Enemy : LivingEntity {
 
         var startNode = grid.nodes[v.y, v.x];
         var endNode = grid.nodes[w.y, w.x];
-        path.Add(startNode.worldPos);
-        path.Add(endNode.worldPos);
+        float distance = Vector3.Distance(startNode.worldPos, endNode.worldPos);
+        resolution = Mathf.RoundToInt(Mathf.Lerp(2f, grid.sizeX, distance/(float)grid.sizeX));
+        float step = distance / resolution;
+        Vector3 dir = (endNode.worldPos - startNode.worldPos).normalized;
+        //dir.y = 0;
+        Vector3 currPos = startPos;
+
+        Node lastWalkableNode = startNode;
+
+        for(int i=0; i<=resolution; i++)
+        {
+            RaycastHit hit;
+            var obstacleNode = Physics.Raycast(currPos + Vector3.up * 100f, Vector3.down, out hit, 1000f);
+            //process obstacle node
+
+            var node = grid.NodeFromWorldPostion(hit.point);
+            if (node.walkable)
+            {
+                path.Add(node.worldPos + Vector3.up);
+                lastWalkableNode = node; 
+            }
+            else
+            {
+                //apply floodfill on last walkable node and get another node that is walkable
+                //update direction from new walkable node
+                //add node to path
+            }
+            currPos += dir * step;
+
+        }
+
+        //path.Add(startNode.worldPos);
+        //path.Add(endNode.worldPos);
         return path;
     }
 

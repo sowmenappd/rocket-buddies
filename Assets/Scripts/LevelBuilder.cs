@@ -8,6 +8,9 @@ public class LevelBuilder : MonoBehaviour
         TaskBuilder.I.Chain(() => {
             //CleanCachedItems();
             MapBuilder.I.GenerateMesh();
+            
+        })
+        .Chain(() => {
             var sizeX = GridBuilder.I.sizeX;
             var sizeY = GridBuilder.I.sizeY;
             var diam = GridBuilder.I.nodeDiameter;

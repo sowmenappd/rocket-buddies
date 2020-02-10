@@ -117,6 +117,7 @@ public class Grid {
       for (int j = 0; j < nodesOnXaxis; j++) {
         Vector3 spawnPos = new Vector3 (center.x + offset.x - (sizeX * nodeDisplacement / 2) + (j * nodeDiameter * nodeDisplacement), 0, center.z + offset.z - (sizeY * nodeDisplacement/ 2) + (i * nodeDiameter * nodeDisplacement));
         nodes[i, j] = new Node (spawnPos, null, true);
+        nodes[i, j].indices = new Vector2(j, i);
       }
     }
   }
@@ -143,6 +144,8 @@ public class Node {
   public Vector3 worldPos;
   public Node parent = null;
   public bool walkable = false;
+
+  public Vector2 indices = -Vector2.one;
   public Node (Vector3 pos, Node parent = null, bool walkable = true) {
     worldPos = pos;
     this.parent = parent;
