@@ -30,17 +30,22 @@ public class GridBuilder : MonoBehaviour {
   }
 
   public void GenerateGrid (int sizeX, int sizeY, float nodeDiameter) {
-    grid = new Grid (sizeX, sizeY, nodeDiameter);
+    //grid = new Grid (sizeX, sizeY, nodeDiameter);
     SetNodeHeightAndWalkability (MeshGenerator.RequestHeightMap (), MeshGenerator.RequestMaxHeight ());
   }
 
     public void SetNodeHeightAndWalkability (float[, ] noiseMap, float maxHeight) {
     //MonoBehaviour.print("Received noise map of length " + noiseMap.GetLength(0));
+    if(grid == null || grid.nodes == null)
+    {
+        grid = new Grid(sizeX, sizeY, nodeDiameter);
+        grid.GenerateNodes(Vector3.zero);
+    }
     for (int i = 0; i < grid.nodes.GetLength (0); i++) {
       for (int j = 0; j < grid.nodes.GetLength (1); j++) {
         //Noise Map vertices = (rows + 1) * (columns + 1)
         //skipping the 0th row and col in noisemap
-        grid.nodes[i, j].worldPos.y += noiseMap[i + 1, j + 1];
+        grid.nodes[i, j].worldPos.y = noiseMap[i, j];
       }
     }
 
@@ -114,13 +119,13 @@ public class Grid {
     public Node NodeFromWorldPostion(Vector3 pos)
     {
         var index = NodeIndicesFromWorldPostion(pos);
-        return nodes[index.x, index.y];
+        return nodes[index.y, index.x];
     }
 
     public Vector2Int NodeIndicesFromWorldPostion(Vector3 pos)
     {
-        float worldX = pos.x + GridBuilder.I.gridBaseOffset.x;
-        float worldZ = pos.z + GridBuilder.I.gridBaseOffset.z;
+        float worldX = pos.x;
+        float worldZ = pos.z;
 
         int nodeX = Mathf.RoundToInt(((worldX + (sizeX / 2)) / (sizeX * nodeDiameter)) * sizeX);
         int nodeZ = Mathf.RoundToInt(((worldZ + (sizeY / 2)) / (sizeY * nodeDiameter)) * sizeY);

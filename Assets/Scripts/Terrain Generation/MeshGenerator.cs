@@ -123,8 +123,8 @@ public static class MeshGenerator
         Vector3[] vertices = new Vector3[(sizeX + 1) * (sizeZ + 1)];
         noiseMap = new float[sizeZ + 1, sizeX + 1];
         
-        float halfSizeX = sizeX * distanceBetweenVerts / 2;
-        float halfSizeZ = sizeZ * distanceBetweenVerts / 2;
+        //float halfSizeX = sizeX * distanceBetweenVerts / 2;
+        //float halfSizeZ = sizeZ * distanceBetweenVerts / 2;
 
         for(int vertIndex = 0,z = 0; z < sizeZ + 1; z++){
             for(int x = 0; x < sizeX + 1; x++){
@@ -150,22 +150,23 @@ public static class MeshGenerator
             }
         }
         MeshGenerator.noiseMap = noiseMap;
-        OnHeightMapGenerated?.Invoke(noiseMap, maxHeight);
+        if(OnHeightMapGenerated == null)
+            OnHeightMapGenerated += GameObject.FindObjectOfType<GridBuilder>().SetNodeHeightAndWalkability;
+        OnHeightMapGenerated(noiseMap, maxHeight);
         return vertices;
     }
 
     public static float[,] RequestHeightMap(){
-        return MeshGenerator.noiseMap;
+        return noiseMap;
     }
 
     public static float RequestMaxHeight(){
-        return MeshGenerator.maxHeight;
+        return maxHeight;
     }
 
     private static float GetVertexHeight(float x, float z){
         return Mathf.Clamp01(Mathf.PerlinNoise(x, z));
     }
-
 
     private static void ApplyFlatShading(int sizeX, int sizeZ, Vector3[] vertices, int[] triangles, Vector2[] uvs){
         flatShadedVertices = new Vector3[triangles.Length];
