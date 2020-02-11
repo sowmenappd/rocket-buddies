@@ -28,6 +28,7 @@ public class GridBuilder : MonoBehaviour {
   void Start () {
     MeshGenerator.OnHeightMapGenerated += SetNodeHeightAndWalkability;
     I.GenerateGrid (sizeX, sizeY, nodeDiameter);
+
   }
 
   public void GenerateGrid (int sizeX, int sizeY, float nodeDiameter) {
@@ -117,7 +118,7 @@ public class Grid {
       for (int j = 0; j < nodesOnXaxis; j++) {
         Vector3 spawnPos = new Vector3 (center.x + offset.x - (sizeX * nodeDisplacement / 2) + (j * nodeDiameter * nodeDisplacement), 0, center.z + offset.z - (sizeY * nodeDisplacement/ 2) + (i * nodeDiameter * nodeDisplacement));
         nodes[i, j] = new Node (spawnPos, null, true);
-        nodes[i, j].indices = new Vector2(j, i);
+        nodes[i, j].indices = new Vector2Int(j, i);
       }
     }
   }
@@ -138,6 +139,27 @@ public class Grid {
         return new Vector2Int(nodeX, nodeZ);
     }
 
+    public List<Node> GetNeighboursOf(Node node, int radius = 0)
+    {
+        var neighbours = new List<Node>();
+
+        for(int i=(-1 + radius); i < (2 + radius) ; i++)
+        {
+            for(int j=(-1 + radius); j <(2 + radius); j++)
+            {
+                int checkX = node.indices.x + i;
+                int checkZ = node.indices.y + j;
+                if (checkX == 0 && checkZ == 0) continue;
+
+                if (checkX < 0 || checkX >= nodes.GetLength(1) 
+                    || checkZ < 0 || checkZ >= nodes.GetLength(0))
+                    continue;
+                neighbours.Add(nodes[checkZ, checkX]);
+            }
+        }
+        return neighbours;
+    }
+
 }
 
 public class Node {
@@ -145,10 +167,11 @@ public class Node {
   public Node parent = null;
   public bool walkable = false;
 
-  public Vector2 indices = -Vector2.one;
+  public Vector2Int indices = -Vector2Int.one;
   public Node (Vector3 pos, Node parent = null, bool walkable = true) {
     worldPos = pos;
     this.parent = parent;
     this.walkable = walkable;
   }
+
 }

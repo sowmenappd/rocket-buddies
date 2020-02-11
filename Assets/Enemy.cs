@@ -29,9 +29,6 @@ public class Enemy : LivingEntity {
   const float onStatePersistAttackRangeChangeTimer = 3f;
   float currentAttackStateTimer = 0;
 
-  public Transform A, B, C;
-
-
   protected override void Start () {
     base.Start ();
     state = State.Idle;
@@ -51,12 +48,20 @@ public class Enemy : LivingEntity {
 
     public LayerMask obstacleLayer;
 
+    public int highlight = 0;
+
   void OnDrawGizmos()
     {
         if(path != null)
-            foreach (var a in path)
+            for (int i = 0; i < path.Count; i++)
             {
-                Gizmos.DrawCube(a, Vector3.one * .3f);
+                Gizmos.color = Color.white;
+                Gizmos.DrawCube(path[i], Vector3.one * .3f);
+                if(i == highlight)
+                {
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawCube(path[i], Vector3.one * 1f);
+                }
             }
         //print(GetDotProduct(A.position, B.position, C.position));
     }
@@ -111,25 +116,26 @@ public class Enemy : LivingEntity {
 
   Rigidbody rb;
   List<Vector3> path = new List<Vector3>();
-  float maxPathRetraceTime = 3f;
+  float maxPathRetraceTime = 1f;
   float pathCurrentTime = 0;
   public int currentPointIndex = 0;
 
   void ChasePlayer(){
     Vector3 dir = (player.position - transform.position);
-    dir.y = 0;
-    animMoveDirection = dir.normalized;
-    FaceDirection(animMoveDirection);
+    //dir.y = 0;
     if (path != null && path.Count > 0)
     {
         Vector3 pos = path[currentPointIndex];
         dir = pos - transform.position;
+        animMoveDirection = new Vector2(dir.normalized.x, dir.normalized.z);
+        dir.y = 0;
+        FaceDirection(animMoveDirection);
         transform.Translate(dir.normalized * moveSpeed * Time.deltaTime);
         if(currentPointIndex > 0)
-        {
-            if(dir.sqrMagnitude < 0.1f)
             {
-                currentPointIndex--;
+            if(dir.sqrMagnitude < 0.5f)
+            {
+                currentPointIndex++;
             }
         }
         pathCurrentTime += Time.deltaTime;
@@ -137,12 +143,12 @@ public class Enemy : LivingEntity {
         {
             path = GetPath(transform.position, player.position);
             pathCurrentTime = 0;
-            currentPointIndex = path.Count - 1;
-        }
+            currentPointIndex = 0;// path.Count - 1;
+            }
     } else {
             path = GetPath(transform.position, player.position);
             pathCurrentTime = 0;
-            currentPointIndex = path.Count - 1;
+            currentPointIndex = 0;// path.Count - 1;
     }
 
         print("Moving");

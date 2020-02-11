@@ -12,7 +12,7 @@ public class SpawnableObject : MonoBehaviour, ISpawnable
 
     protected ISpawnable spawnable;
 
-    public static bool debug = true; 
+    public static bool debug = false; 
 
     public virtual ISpawnable Spawn(Vector3 spawnPos)
     {

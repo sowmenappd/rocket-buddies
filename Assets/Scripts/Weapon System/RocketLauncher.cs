@@ -47,6 +47,7 @@ public class RocketLauncher : Weapon {
   }
 
   void ProcessRangefinderVerticalMovement () {
+    if (rangeFinder == null || !hasRangeFinder) return;
     if (rangeFinder.botControl) return;
 
     //control with mouse Y
