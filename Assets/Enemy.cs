@@ -122,16 +122,21 @@ public class Enemy : LivingEntity {
 
   void ChasePlayer(){
     Vector3 dir = (player.position - transform.position);
+    if(dir.sqrMagnitude < currentAttackRange * currentAttackRange){
+      state = State.Attacking;
+      return;
+    }
     //dir.y = 0;
     if (path != null && path.Count > 0)
     {
         Vector3 pos = path[currentPointIndex];
-        dir = pos - transform.position;
-        animMoveDirection = new Vector2(dir.normalized.x, dir.normalized.z);
-        dir.y = 0;
-        FaceDirection(animMoveDirection);
-        transform.Translate(dir.normalized * moveSpeed * Time.deltaTime);
-        if(currentPointIndex > 0)
+        dir = (pos - transform.position).normalized;
+        animMoveDirection.x = dir.x > 0 ? 1 : dir.x < 0 ? -1 : 0;
+        animMoveDirection.x = dir.z > 0 ? 1 : dir.z < 0 ? -1 : 0;
+        //dir.y = 0;
+        FaceDirection(dir);
+        transform.position += (dir.normalized * moveSpeed * Time.deltaTime);
+        if(currentPointIndex < path.Count - 1)
             {
             if(dir.sqrMagnitude < 0.5f)
             {
@@ -139,16 +144,17 @@ public class Enemy : LivingEntity {
             }
         }
         pathCurrentTime += Time.deltaTime;
+        //&& Vector3.Distance(transform.position, player.position) < currentAttackRange
         if(pathCurrentTime > maxPathRetraceTime)
         {
-            path = GetPath(transform.position, player.position);
-            pathCurrentTime = 0;
-            currentPointIndex = 0;// path.Count - 1;
-            }
+          path = GetPath(transform.position, player.position);
+          pathCurrentTime = 0;
+          currentPointIndex = 2;// path.Count - 1;
+        }
     } else {
             path = GetPath(transform.position, player.position);
             pathCurrentTime = 0;
-            currentPointIndex = 0;// path.Count - 1;
+            currentPointIndex = 2;// path.Count - 1;
     }
 
         print("Moving");
@@ -167,7 +173,7 @@ public class Enemy : LivingEntity {
         Vector3 dir = (transform.position - player.position);
         dir.y = 0;
         animMoveDirection = dir.normalized;
-        FaceDirection(animMoveDirection);
+        FaceDirection(dir);
         transform.Translate(animMoveDirection * moveSpeed * Time.deltaTime);
         print("Fleeing");
   }
@@ -224,7 +230,7 @@ public class Enemy : LivingEntity {
                 //set lw node to new node
                 Node n = FindNextBestNeighbourNode(grid, lastWalkableNode, endNode);
                 dir = (endNode.worldPos - n.worldPos).normalized;
-                path.Add(n.worldPos);
+                path.Add(n.worldPos + Vector3.up);
                 lastWalkableNode = n;
                 currPos = n.worldPos + dir * step;
 
@@ -287,9 +293,6 @@ public class Enemy : LivingEntity {
             }
 
         }
-
-        //path.Add(startNode.worldPos);
-        //path.Add(endNode.worldPos);
         return path;
     }
 
@@ -471,9 +474,8 @@ public class Enemy : LivingEntity {
   }
 
   void RotateToDirection(Vector3 direction){
-    transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
-    //float y = Mathf.LerpAngle(transform.eulerAngles.y, cameraRotation, rotationSpeed * Time.deltaTime);
-    //transform.eulerAngles = new Vector3 (transform.eulerAngles.x, y, transform.eulerAngles.z);
+    transform.rotation = Quaternion.Slerp(transform.rotation,
+    Quaternion.LookRotation(direction, Vector3.up), 3 * Time.deltaTime);
   }
 
     float fireTimer = 0;
