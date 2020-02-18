@@ -57,11 +57,11 @@ public class Enemy : LivingEntity {
             {
                 Gizmos.color = Color.white;
                 Gizmos.DrawCube(path[i], Vector3.one * .3f);
-                if(i == highlight)
-                {
-                    Gizmos.color = Color.red;
-                    Gizmos.DrawCube(path[i], Vector3.one * 1f);
-                }
+                // if(i == highlight)
+                // {
+                //     Gizmos.color = Color.red;
+                //     Gizmos.DrawCube(path[i], Vector3.one * 1f);
+                // }
             }
         //print(GetDotProduct(A.position, B.position, C.position));
     }
@@ -75,14 +75,25 @@ public class Enemy : LivingEntity {
         return Vector3.Dot(d1, d2);
     }
 
+    public bool attackOverride = false;
+    public float attackOverrideTimer = 0;
+
     void Update () {
     if (!alive) return;
+
+    if(attackOverride)
+      attackOverrideTimer += Time.deltaTime;
+      if(attackOverrideTimer > 2){
+        attackOverride = false;
+        attackOverrideTimer = 0;
+      }
 
     state = CalculateNextState (state);
     if(state == State.Attacking && lastState == State.Attacking){
       currentAttackStateTimer += Time.deltaTime;
       if(currentAttackStateTimer > onStatePersistAttackRangeChangeTimer){
         ChangeAttackRange();
+        path = ScatterAway(transform.position, 60);
         currentAttackStateTimer = 0;
       }
     }
@@ -92,8 +103,20 @@ public class Enemy : LivingEntity {
     lastState = state;
   }
 
+  List<Vector3> ScatterAway(Vector3 position, int radius){
+    Node node = GridBuilder.I.grid.NodeFromWorldPostion(position);
+    var r = radius; //Random.value > 0.5 ? radius : -radius;
+    int x = Mathf.Clamp(Random.Range(node.indices.x - r, node.indices.x - r/2), 0, GridBuilder.I.grid.nodes.GetLength(1));
+    int z = Mathf.Clamp(Random.Range(node.indices.y - r, node.indices.y - r/2), 0, GridBuilder.I.grid.nodes.GetLength(0));
+    state = State.Fleeing;
+    attackOverride = true;
+    currentPointIndex = 2;
+    return GetPath(position, GridBuilder.I.grid.nodes[z, x].worldPos);
+  }
+
   void ChangeAttackRange(){
     currentAttackRange = Random.Range(attackRangeMinMax.x, attackRangeMinMax.y);
+    currentAttackRange += 3;
   }
 
   void PerformStateActions(State state){
@@ -101,11 +124,14 @@ public class Enemy : LivingEntity {
       case State.Moving:
         ChasePlayer();
         break;
-    case State.Fleeing:
-        Flee();
+      case State.Fleeing:
+        if(lastState != State.Fleeing)
+          path = ScatterAway(transform.position, 30);
+        ChasePlayer();
         break;
       case State.Attacking:
-        AttackPlayer();
+        if(!attackOverride)
+          AttackPlayer();
         break;
       case State.Reloading:
         ReloadAmmo();
@@ -122,7 +148,7 @@ public class Enemy : LivingEntity {
 
   void ChasePlayer(){
     Vector3 dir = (player.position - transform.position);
-    if(dir.sqrMagnitude < currentAttackRange * currentAttackRange){
+    if(!attackOverride && dir.sqrMagnitude < currentAttackRange * currentAttackRange){
       state = State.Attacking;
       return;
     }
@@ -133,7 +159,7 @@ public class Enemy : LivingEntity {
         dir = (pos - transform.position).normalized;
         animMoveDirection.x = dir.x > 0 ? 1 : dir.x < 0 ? -1 : 0;
         animMoveDirection.x = dir.z > 0 ? 1 : dir.z < 0 ? -1 : 0;
-        //dir.y = 0;
+        dir.y = 0;
         FaceDirection(dir);
         transform.position += (dir.normalized * moveSpeed * Time.deltaTime);
         if(currentPointIndex < path.Count - 1)
@@ -142,19 +168,26 @@ public class Enemy : LivingEntity {
             {
                 currentPointIndex++;
             }
+        } else {
+          if(attackOverrideTimer > 2){
+            attackOverride = false;
+            attackOverrideTimer = 0;
+          }
         }
         pathCurrentTime += Time.deltaTime;
         //&& Vector3.Distance(transform.position, player.position) < currentAttackRange
-        if(pathCurrentTime > maxPathRetraceTime)
+        if(pathCurrentTime > maxPathRetraceTime && !attackOverride)
         {
           path = GetPath(transform.position, player.position);
           pathCurrentTime = 0;
-          currentPointIndex = 2;// path.Count - 1;
+          currentPointIndex = Mathf.Min(2, path.Count-1);// path.Count - 1;
         }
     } else {
+          if(!attackOverride){
             path = GetPath(transform.position, player.position);
             pathCurrentTime = 0;
-            currentPointIndex = 2;// path.Count - 1;
+            currentPointIndex = Mathf.Min(2, path.Count-1);// path.Count - 1;
+          }
     }
 
         print("Moving");
@@ -360,9 +393,9 @@ public class Enemy : LivingEntity {
   }
 
   State CalculateNextState (State state) {
-    if (IsAttackIncoming(player))
+    if (IsAttackIncoming(player) || attackOverride)
     {
-        return State.Fleeing;
+      return State.Fleeing;
     }
     if (state == State.Idle) {
       if (stamina > 0) {
@@ -486,6 +519,9 @@ public class Enemy : LivingEntity {
         if(activeWeapon.canFire && fireTimer > 2)
         {
           activeWeapon.Fire();
+          if(Random.value > 0.5){
+            path = ScatterAway(transform.position, 50);
+        }
           print("Firing enemy rockets.");
           fireTimer = 0;
         }

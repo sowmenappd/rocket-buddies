@@ -26,6 +26,8 @@ public class PlayerController : LivingEntity {
 
   public Weapon activeWeapon;
 
+  CameraController cam;
+
   public static PlayerController Instance {
     get {
       return instance;
@@ -60,6 +62,7 @@ public class PlayerController : LivingEntity {
 
     Cursor.lockState = CursorLockMode.Locked;
     Cursor.visible = false;
+    cam = Camera.main.transform.GetComponent<CameraController>();
   }
 
   void Update () {
@@ -108,10 +111,16 @@ public class PlayerController : LivingEntity {
   public override void TakeDamage (int damage) {
     base.TakeDamage (damage);
   }
-
+  public float cameraRotationV = 0;
   float CalculateRotation () {
     if (Input.GetAxis ("Mouse X") != 0) {
       cameraRotationH += Input.GetAxis ("Mouse X") > 0 ? rotationSpeed : -rotationSpeed;
+    }
+
+    if(Input.GetAxis ("Mouse Y") != 0){
+      cameraRotationV += Input.GetAxis ("Mouse Y") > 0 ? rotationSpeed : -rotationSpeed;
+      cameraRotationV = Mathf.Clamp(cameraRotationV, -45, 45);
+      //cam.camControlledVertical = cameraRotationV;
     }
     return cameraRotationH;
   }

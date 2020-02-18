@@ -16,7 +16,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &8829211532325131939
 Transform:
@@ -95,7 +95,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &7006198277992587395
 Transform:
@@ -104,7 +104,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6296135557158621840}
-  m_LocalRotation: {x: 0, y: 0.27894992, z: 0, w: -0.96030563}
+  m_LocalRotation: {x: 0, y: 0.7149005, z: 0, w: -0.6992262}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -128,6 +128,7 @@ MonoBehaviour:
   centerOffset: {x: -0.07, y: 0.8, z: -0.4}
   radius: 1
   ignoreGroundNormal: 0
+  randomRotation: 1
 --- !u!64 &-1876070800913987668
 MeshCollider:
   m_ObjectHideFlags: 0

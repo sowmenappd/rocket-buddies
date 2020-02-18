@@ -16,7 +16,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &157551876019486011
 Transform:
@@ -25,7 +25,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 157551876019486009}
-  m_LocalRotation: {x: 0, y: 0.854857, z: 0, w: 0.5188636}
+  m_LocalRotation: {x: 0, y: 0.05633056, z: 0, w: -0.9984122}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -49,6 +49,7 @@ MonoBehaviour:
   centerOffset: {x: 0, y: 0.93, z: 0}
   radius: 2
   ignoreGroundNormal: 1
+  randomRotation: 1
 --- !u!64 &1065597530171995399
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -144,6 +145,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: SpruceTree2
+      objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: a1ffaf72df88faad58523ae6c4707346,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: -1504981713932161579, guid: a1ffaf72df88faad58523ae6c4707346,
         type: 3}

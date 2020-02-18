@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Diagnostics;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class MeshGenerator
@@ -13,9 +14,13 @@ public static class MeshGenerator
 
     public static System.Action<float[,], float> OnHeightMapGenerated;
 
+    public static Stopwatch sw = new Stopwatch();
+
     public static Mesh CreateMesh(Transform target, int sizeX, int sizeZ, float meshMapHeight, AnimationCurve heightCurve, float noiseScale, float adjacentPointDistance, float seed, Vector2 offset, int numWaves, float frequencyInfluence, float baseDiminishValue, List<RegionType> regions, bool useFlatShading){
         MeshFilter meshFilter = target.GetComponent<MeshFilter>();
         MeshRenderer renderer = target.GetComponent<MeshRenderer>();
+        sw = new Stopwatch();
+        sw.Start();
 
         Mesh mesh = new Mesh();
         mesh.name = "Auto-generated Mesh";
@@ -38,7 +43,9 @@ public static class MeshGenerator
         mesh.RecalculateNormals();
 
         meshFilter.mesh = mesh;
-        UnityEngine.MonoBehaviour.print("Mesh created.");
+        sw.Stop();
+        UnityEngine.MonoBehaviour.print("Mesh created in: " + sw.Elapsed.TotalMilliseconds.ToString());
+
         return mesh;
     }
 

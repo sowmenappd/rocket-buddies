@@ -10,6 +10,9 @@ public class SpawnableObject : MonoBehaviour, ISpawnable
     public Vector3 centerOffset;
     public float radius = 0.5f;
 
+    public bool ignoreGroundNormal;
+    public bool randomRotation = true;
+
     protected ISpawnable spawnable;
 
     public static bool debug = false; 
@@ -22,8 +25,18 @@ public class SpawnableObject : MonoBehaviour, ISpawnable
             obj = Instantiate(spawnableObject, spawnPos, transform.rotation);
             obj.gameObject.name = spawnableObject.name;
             spawnable = obj.transform.GetComponent<ISpawnable>();
+            RandomRotate();
         }
         return spawnable;
+    }
+
+    public virtual void RandomRotate(){
+        if(randomRotation){
+            transform.eulerAngles += Vector3.up * Random.Range(0f, 180f);
+        }
+        if(ignoreGroundNormal){
+            transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+        }
     }
 
     void OnDrawGizmos(){
